@@ -24,6 +24,7 @@ Open `index.html` in a browser, or serve the repository root with any static web
 The current shopping bag is a front-end preview only; it does not place orders or process payments.
 
 ## Added catalogue items
+- PareCure Body Lotion — 250 ml
 - PareCure Face Wash — 100 ml
 - PareCure Brightening Serum — 50 ml
 - PareCure Sunscreen SPF 50 (Face) — 100 ml
