@@ -1,4 +1,4 @@
-const products={serum:"Dark Spot Correcting Serum · 30 ml",cream:"Dark Spot Correcting Cream · 50 ml",oil:"Dark Inner Thigh & Underarms Remover Tissue Oil · 50 ml"};
+const products={serum:"Dark Spot Correcting Serum · 30 ml",cream:"Dark Spot Correcting Cream · 50 ml",oil:"Dark Inner Thigh & Underarms Remover Tissue Oil · 50 ml",facewash:"PareCure Face Wash · 100 ml","brightening-serum":"PareCure Brightening Serum · 50 ml",sunscreen:"PareCure Sunscreen SPF 50 (Face) · 100 ml"};
 const bag=[];
 const count=document.getElementById("bag-count");
 const total=document.getElementById("bag-total-count");
