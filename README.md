@@ -22,3 +22,8 @@ Open `index.html` in a browser, or serve the repository root with any static web
 - Connect newsletter sign-ups to an email service and add the final privacy/returns/shipping policies.
 
 The current shopping bag is a front-end preview only; it does not place orders or process payments.
+
+## Added catalogue items
+- PareCure Face Wash — 100 ml
+- PareCure Brightening Serum — 50 ml
+- PareCure Sunscreen SPF 50 (Face) — 100 ml
