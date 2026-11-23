@@ -29,8 +29,14 @@ function ProductCard({ product, onAdd, onOpen }) {
 
 function ProductDetailDialog({ product, onClose, onAdd }) {
   const [quantity, setQuantity] = useState(1);
+  const [touchStartX, setTouchStartX] = useState(null);
+  const changeImage = (direction) => setActiveImage((current) => (current + direction + gallery.length) % gallery.length);
   useEffect(() => {
-    const handleKeyDown = (event) => { if (event.key === 'Escape') onClose(); };
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') onClose();
+      if (event.key === 'ArrowRight') changeImage(1);
+      if (event.key === 'ArrowLeft') changeImage(-1);
+    };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
@@ -48,10 +54,20 @@ function ProductDetailDialog({ product, onClose, onAdd }) {
       <button className="dialog-close" onClick={onClose} aria-label="Close product details">×</button>
       <div className="product-detail-layout">
         <div className="product-detail-gallery">
-          <div className={'product-detail-photo ' + product.tone}>
+          <div className={'product-detail-photo ' + product.tone}
+            onTouchStart={(event) => setTouchStartX(event.changedTouches[0].clientX)}
+            onTouchEnd={(event) => {
+              if (touchStartX === null) return;
+              const distance = event.changedTouches[0].clientX - touchStartX;
+              if (Math.abs(distance) > 45) changeImage(distance < 0 ? 1 : -1);
+              setTouchStartX(null);
+            }}>
             <img src={photo(gallery[activeImage].src, 1200)} alt={gallery[activeImage].alt} />
+            <button type="button" className="gallery-arrow gallery-arrow-prev" onClick={() => changeImage(-1)} aria-label="Previous product image">‹</button>
+            <button type="button" className="gallery-arrow gallery-arrow-next" onClick={() => changeImage(1)} aria-label="Next product image">›</button>
             <span className="product-gallery-label">{gallery[activeImage].label}</span>
           </div>
+          <p className="gallery-position" aria-live="polite">IMAGE {activeImage + 1} OF {gallery.length} · SWIPE OR USE ARROWS</p>
           <div className="product-gallery-thumbnails" aria-label="Product image gallery">
             {gallery.map((item, index) => <button type="button" key={item.type} className={activeImage === index ? 'active' : ''} onClick={() => setActiveImage(index)} aria-pressed={activeImage === index} aria-label={'Show ' + item.label}>
               <img src={photo(item.src, 240)} alt="" loading="lazy" />
