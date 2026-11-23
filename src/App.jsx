@@ -82,6 +82,7 @@ function AccountDialog({ onClose }) {
 function CheckoutDialog({ bag, subtotal, onClose, onOrderComplete }) {
   const [stage, setStage] = useState('details');
   const [paymentMethod, setPaymentMethod] = useState('card');
+  const [deliveryMethod, setDeliveryMethod] = useState('delivery');
   const [customer, setCustomer] = useState({ name: '', email: '', phone: '', address: '', suburb: '', city: '', province: 'Gauteng', postalCode: '' });
   const [paymentStatus, setPaymentStatus] = useState('');
   const [orderNumber, setOrderNumber] = useState('');
@@ -114,20 +115,27 @@ function CheckoutDialog({ bag, subtotal, onClose, onOrderComplete }) {
       {stage === 'details' && <>
         <p className="eyebrow">ALMOST YOURS</p>
         <h2 id="checkout-title">Delivery details.</h2>
-        <p className="checkout-intro">Where should we send your PareCure essentials?</p>
+        <p className="checkout-intro">Choose how you would like to receive your PareCure essentials.</p>
+        <div className="payment-methods delivery-methods">
+          <label className={deliveryMethod === 'delivery' ? 'selected' : ''}><input type="radio" name="delivery-method" value="delivery" checked={deliveryMethod === 'delivery'} onChange={() => setDeliveryMethod('delivery')} /><span className="payment-method-icon">⌂</span><span><strong>Deliver to my address</strong><small>Receive your order at your door</small></span><b>›</b></label>
+          <label className={deliveryMethod === 'collection' ? 'selected' : ''}><input type="radio" name="delivery-method" value="collection" checked={deliveryMethod === 'collection'} onChange={() => setDeliveryMethod('collection')} /><span className="payment-method-icon">⌖</span><span><strong>Collect at store</strong><small>Pick up your order in person</small></span><b>›</b></label>
+        </div>
         <form className="checkout-form" onSubmit={(event) => { event.preventDefault(); setStage('payment'); }}>
           <div className="checkout-fields">
             <label>Full name<input autoComplete="name" required value={customer.name} onChange={(event) => updateCustomer('name', event.target.value)} placeholder="Full name" /></label>
             <label>Email address<input type="email" autoComplete="email" required value={customer.email} onChange={(event) => updateCustomer('email', event.target.value)} placeholder="you@example.com" /></label>
             <label>Phone number<input type="tel" autoComplete="tel" required value={customer.phone} onChange={(event) => updateCustomer('phone', event.target.value)} placeholder="e.g. 071 234 5678" /></label>
-            <label className="checkout-wide">Street address<input autoComplete="street-address" required value={customer.address} onChange={(event) => updateCustomer('address', event.target.value)} placeholder="House number and street" /></label>
-            <label>Suburb<input autoComplete="address-line2" required value={customer.suburb} onChange={(event) => updateCustomer('suburb', event.target.value)} placeholder="Suburb" /></label>
-            <label>City / town<input autoComplete="address-level2" required value={customer.city} onChange={(event) => updateCustomer('city', event.target.value)} placeholder="City" /></label>
-            <label>Province<select required value={customer.province} onChange={(event) => updateCustomer('province', event.target.value)}><option>Eastern Cape</option><option>Free State</option><option>Gauteng</option><option>KwaZulu-Natal</option><option>Limpopo</option><option>Mpumalanga</option><option>Northern Cape</option><option>North West</option><option>Western Cape</option></select></label>
-            <label>Postal code<input autoComplete="postal-code" required inputMode="numeric" value={customer.postalCode} onChange={(event) => updateCustomer('postalCode', event.target.value)} placeholder="Postal code" /></label>
+            {deliveryMethod === 'delivery' && <>
+              <label className="checkout-wide">Street address<input autoComplete="street-address" required value={customer.address} onChange={(event) => updateCustomer('address', event.target.value)} placeholder="House number and street" /></label>
+              <label>Suburb<input autoComplete="address-line2" required value={customer.suburb} onChange={(event) => updateCustomer('suburb', event.target.value)} placeholder="Suburb" /></label>
+              <label>City / town<input autoComplete="address-level2" required value={customer.city} onChange={(event) => updateCustomer('city', event.target.value)} placeholder="City" /></label>
+              <label>Province<select required value={customer.province} onChange={(event) => updateCustomer('province', event.target.value)}><option>Eastern Cape</option><option>Free State</option><option>Gauteng</option><option>KwaZulu-Natal</option><option>Limpopo</option><option>Mpumalanga</option><option>Northern Cape</option><option>North West</option><option>Western Cape</option></select></label>
+              <label>Postal code<input autoComplete="postal-code" required inputMode="numeric" value={customer.postalCode} onChange={(event) => updateCustomer('postalCode', event.target.value)} placeholder="Postal code" /></label>
+            </>}
+            {deliveryMethod === 'collection' && <p className="checkout-demo-note checkout-wide">Store collection selected. Collection location and collection instructions will be confirmed before the order is fulfilled.</p>}
           </div>
           <div className="checkout-order-summary"><span>{bag.reduce((n, item) => n + item.quantity, 0)} item(s) in your order</span><strong>{money(subtotal)}</strong></div>
-          <p className="checkout-demo-note">Delivery pricing is not available yet. No delivery fee is being charged or calculated.</p>
+          <p className="checkout-demo-note">{deliveryMethod === 'collection' ? 'Store collection is selected. No delivery fee applies.' : 'Delivery pricing is not available yet. No delivery fee is being charged or calculated.'}</p>
           <button className="button button-dark checkout-primary" type="submit">Continue to payment <span>↗</span></button>
         </form>
       </>}
@@ -141,9 +149,16 @@ function CheckoutDialog({ bag, subtotal, onClose, onOrderComplete }) {
           <label className={paymentMethod === 'eft' ? 'selected' : ''}><input type="radio" name="payment-method" value="eft" checked={paymentMethod === 'eft'} onChange={() => setPaymentMethod('eft')} /><span className="payment-method-icon">⇄</span><span><strong>Instant EFT</strong><small>Bank transfer</small></span><b>›</b></label>
           <label className={paymentMethod === 'wallet' ? 'selected' : ''}><input type="radio" name="payment-method" value="wallet" checked={paymentMethod === 'wallet'} onChange={() => setPaymentMethod('wallet')} /><span className="payment-method-icon">◈</span><span><strong>Hosted checkout</strong><small>Hosted payment experience preview</small></span><b>›</b></label>
         </div>
+        {paymentMethod === 'card' && <div className="checkout-fields card-entry-fields" aria-label="Card details">
+          <label className="checkout-wide">Name on card<input type="text" name="cardholder" autoComplete="off" placeholder="Name as shown on card" /></label>
+          <label className="checkout-wide">Card number<input type="text" name="card-number" inputMode="numeric" autoComplete="off" placeholder="1234 5678 9012 3456" maxLength="23" /></label>
+          <label>Expiry date<input type="text" name="card-expiry" inputMode="numeric" autoComplete="off" placeholder="MM/YY" maxLength="5" /></label>
+          <label>Security code<input type="password" name="card-security-code" inputMode="numeric" autoComplete="new-password" placeholder="CVV" maxLength="4" /></label>
+          <p className="checkout-demo-note checkout-wide">Card fields are for interface preview only. Do not enter real card details. Nothing is transmitted, saved, or tracked; secure provider-hosted payment fields must be connected before accepting real cards.</p>
+        </div>}
         <div className="gateway-order-total"><span>Order total</span><strong>{money(subtotal)}</strong></div>
         <div className="demo-actions">
-          <button className="button button-dark checkout-primary" onClick={() => processPaymentChoice('success')}>Complete checkout <span>↗</span></button>
+          <button className="button button-dark checkout-primary" onClick={(event) => { const fields = event.currentTarget.closest('.checkout-dialog')?.querySelectorAll('.card-entry-fields input'); fields?.forEach((field) => { field.value = ''; }); processPaymentChoice('success'); }}>Complete checkout <span>↗</span></button>
           <button className="demo-secondary" onClick={() => processPaymentChoice('failure')}>Test declined payment</button>
           <button className="demo-cancel" onClick={() => processPaymentChoice('cancel')}>Cancel payment</button>
         </div>
@@ -164,7 +179,7 @@ function CheckoutDialog({ bag, subtotal, onClose, onOrderComplete }) {
         <p className="eyebrow">ORDER CONFIRMATION</p>
         <h2 id="checkout-title">Thank you, {customer.name.split(' ')[0]}.</h2>
         <p className="checkout-intro">Your checkout details have been received. Payment processing is not enabled yet.</p>
-        <div className="confirmation-card"><span>ORDER NUMBER</span><strong>{orderNumber}</strong><div><span>Payment method</span><b>{paymentMethod === 'card' ? 'Bank card' : paymentMethod === 'eft' ? 'Instant EFT' : 'Hosted checkout'}</b></div><div><span>Order total</span><b>{money(subtotal)}</b></div><div><span>Delivery to</span><b>{customer.suburb}, {customer.city}</b></div><small>No payment was taken. Payment processing is not enabled yet.</small></div>
+        <div className="confirmation-card"><span>ORDER NUMBER</span><strong>{orderNumber}</strong><div><span>Payment method</span><b>{paymentMethod === 'card' ? 'Bank card' : paymentMethod === 'eft' ? 'Instant EFT' : 'Hosted checkout'}</b></div><div><span>Order total</span><b>{money(subtotal)}</b></div><div><span>{deliveryMethod === 'collection' ? 'Fulfilment' : 'Delivery to'}</span><b>{deliveryMethod === 'collection' ? 'Store collection' : `${customer.suburb}, ${customer.city}`}</b></div><small>No payment was taken. Payment processing is not enabled yet.</small></div>
         <button className="button button-dark checkout-primary" onClick={() => onOrderComplete({ orderNumber, customer, paymentMethod, total: subtotal, items: bag })}>Finish and return to store <span>↗</span></button>
       </>}
     </section>
