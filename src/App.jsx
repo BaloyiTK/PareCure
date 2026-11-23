@@ -29,11 +29,32 @@ function ProductCard({ product, onAdd, onOpen }) {
 
 function ProductDetailDialog({ product, onClose, onAdd }) {
   const [quantity, setQuantity] = useState(1);
+  const gallery = [
+    { src: product.image, alt: product.alt, label: 'Product packaging', type: 'pack' },
+    { src: product.applicationImage || 'photo-1556228720-195a672e8a03', alt: 'Skincare application in progress', label: 'Application', type: 'application' },
+    { src: product.skinImage || 'photo-1616394584738-fc6e612e71b9', alt: 'Close-up of healthy-looking skin texture', label: 'Skin close-up', type: 'skin' },
+  ];
+  const [activeImage, setActiveImage] = useState(0);
+  const ingredients = product.ingredients || 'The verified full ingredient list is not available in the current product assets. Please check the product packaging before use.';
+  const directions = product.directions || 'Follow the directions printed on the product packaging.';
+
   return <div className="product-detail-overlay" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
     <section className="product-detail-dialog" role="dialog" aria-modal="true" aria-labelledby="product-detail-title">
       <button className="dialog-close" onClick={onClose} aria-label="Close product details">×</button>
       <div className="product-detail-layout">
-        <div className={'product-detail-photo ' + product.tone}><img src={photo(product.image, 1000)} alt={product.alt} /></div>
+        <div className="product-detail-gallery">
+          <div className={'product-detail-photo ' + product.tone}>
+            <img src={photo(gallery[activeImage].src, 1200)} alt={gallery[activeImage].alt} />
+            <span className="product-gallery-label">{gallery[activeImage].label}</span>
+          </div>
+          <div className="product-gallery-thumbnails" aria-label="Product image gallery">
+            {gallery.map((item, index) => <button type="button" key={item.type} className={activeImage === index ? 'active' : ''} onClick={() => setActiveImage(index)} aria-pressed={activeImage === index} aria-label={'Show ' + item.label}>
+              <img src={photo(item.src, 240)} alt="" loading="lazy" />
+              <span>{item.label}</span>
+            </button>)}
+          </div>
+          {activeImage === 2 && <p className="product-gallery-disclaimer">Skin close-up is an illustrative visual, not a before-and-after result or a product efficacy claim.</p>}
+        </div>
         <div className="product-detail-content">
           <p className="eyebrow">{product.category} · PARECURE</p>
           <h2 id="product-detail-title">{product.name}</h2>
@@ -47,14 +68,17 @@ function ProductDetailDialog({ product, onClose, onAdd }) {
             <div><dt>Product type</dt><dd>{product.detail.split('·')[0].trim()}</dd></div>
             <div><dt>Price</dt><dd>{money(product.price)}</dd></div>
           </dl></div>
-          <p className="product-detail-note">For ingredients, directions, warnings and skin-suitability information, please refer to the product packaging. These details have not been supplied in the store listing yet.</p>
+          <div className="product-detail-information">
+            <section><h3>Ingredients</h3><p>{ingredients}</p></section>
+            <section><h3>How to use</h3><p>{directions}</p></section>
+            <section><h3>Important information</h3><p>Check the product packaging for warnings, precautions and skin-suitability information. If irritation occurs, discontinue use.</p></section>
+          </div>
           <div className="product-detail-actions"><div className="detail-quantity" aria-label="Quantity"><button onClick={() => setQuantity((value) => Math.max(1, value - 1))} aria-label="Decrease quantity">−</button><span>{quantity}</span><button onClick={() => setQuantity((value) => value + 1)} aria-label="Increase quantity">+</button></div><button className="button button-dark detail-add-button" onClick={() => onAdd({ ...product, quantity })}>Add {quantity} to bag · {money(product.price * quantity)} <span>↗</span></button></div>
         </div>
       </div>
     </section>
   </div>;
 }
-
 function AccountDialog({ onClose }) {
   const [mode, setMode] = useState('signin');
   const [submitted, setSubmitted] = useState(false);
