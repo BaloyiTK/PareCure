@@ -29,7 +29,7 @@ export default function App() {
   return <>
     <div className="announcement">A little care goes a long way <span>✳</span> Discover the PareCure ritual</div>
     <header className="site-header">
-      <a className="wordmark" href="#top" aria-label="PareCure home"><img className="brand-logo" src="/assets/logo/parecure-logo.png" alt="PareCure Beauty" /></a>
+      <a className="wordmark" href="#top" aria-label="PareCure home"><img className="brand-logo" src="/assets/logo/parecure-logo.png" alt="PareCure Beauty" style={{ backgroundColor: "#fff", display: "block", objectFit: "contain" }} /></a>
       <button className="menu-toggle" aria-label="Toggle menu" aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}>☰</button>
       <nav className={'main-nav ' + (menuOpen ? 'open' : '')} aria-label="Main navigation" onClick={() => setMenuOpen(false)}><a href="#shop">Shop</a><a href="#story">Our philosophy</a><a href="#ritual">The ritual</a></nav>
       <button className="bag-button" onClick={() => setBagOpen(true)} aria-label={'Open shopping bag, ' + bag.length + ' items'}>Bag <span>{bag.length}</span></button>
