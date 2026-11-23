@@ -390,7 +390,7 @@ export default function App() {
     });
     setBagOpen(true);
   };
-  const updateQuantity = (id, change) => setBag((current) => current.map((item) => item.id === id ? { ...item, quantity: item.quantity + change } : item).filter((item) => item.quantity > 0));
+  const updateQuantity = (id, change) => setBag((current) => current.map((item) => item.id === id ? { ...item, quantity: Math.min(99, item.quantity + change) } : item).filter((item) => item.quantity > 0));
   const subtotal = bag.reduce((total, item) => total + item.price * item.quantity, 0);
   const itemCount = bag.reduce((total, item) => total + item.quantity, 0);
 
