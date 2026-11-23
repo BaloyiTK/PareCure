@@ -116,7 +116,7 @@ function ProductDetailDialog({ product, onClose, onAdd }) {
               <span>{item.label}</span>
             </button>)}
           </div>
-          {activeImage === 2 && <p className="product-gallery-disclaimer">Skin close-up is an illustrative visual, not a before-and-after result or a product efficacy claim.</p>}
+
         </div>
         <div className="product-detail-content">
           <p className="eyebrow">{product.category} · PARECURE</p>
