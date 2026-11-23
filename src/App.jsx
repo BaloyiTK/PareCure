@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 const products = [
   {
@@ -67,13 +67,52 @@ const products = [
 const photo = (id, width = 900) => id.startsWith('/') ? id : 'https://images.unsplash.com/' + id + '?auto=format&fit=crop&w=' + width + '&q=85';
 const money = (value) => 'R ' + value.toFixed(2);
 
+function useDialogAccessibility(dialogRef, onClose, active = true) {
+  useEffect(() => {
+    if (!active || !dialogRef.current) return undefined;
+    const dialog = dialogRef.current;
+    const previousFocus = document.activeElement;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const getFocusable = () => Array.from(dialog.querySelectorAll(
+      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    )).filter((element) => element.getAttribute('aria-hidden') !== 'true');
+    (dialog.querySelector('[data-autofocus]') || getFocusable()[0] || dialog).focus();
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        onClose();
+      } else if (event.key === 'Tab') {
+        const focusable = getFocusable();
+        if (!focusable.length) {
+          event.preventDefault();
+          dialog.focus();
+        } else if (event.shiftKey && document.activeElement === focusable[0]) {
+          event.preventDefault();
+          focusable[focusable.length - 1].focus();
+        } else if (!event.shiftKey && document.activeElement === focusable[focusable.length - 1]) {
+          event.preventDefault();
+          focusable[0].focus();
+        }
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = previousOverflow;
+      if (previousFocus && typeof previousFocus.focus === 'function') previousFocus.focus();
+    };
+  }, [active, dialogRef, onClose]);
+}
+
+
 function ProductCard({ product, onAdd, onOpen }) {
   return <article className="product-card">
-    <div className={'product-image ' + product.tone + ' product-image-clickable'} onClick={() => onOpen(product)} role="button" tabIndex={0} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); onOpen(product); } }} aria-label={'View details for ' + product.name}>
+    <div className={'product-image ' + product.tone}>
       <span className="product-tag">{product.category}</span>
       <span className="product-card-badge">PARECURE ESSENTIAL</span>
-      <img src={photo(product.image)} alt={product.alt} loading="lazy" />
-      <button className="product-quick-add" onClick={() => onAdd(product)} aria-label={'Add ' + product.name + ' to bag'}>＋</button>
+      <img src={photo(product.image)} alt={'View details for ' + product.name + '. ' + product.alt} loading="lazy" decoding="async" width="640" height="640" tabIndex={0} role="button" onClick={() => onOpen(product)} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); onOpen(product); } }} aria-label={'View details for ' + product.name} />
+      <button type="button" className="product-quick-add" onClick={() => onAdd(product)} aria-label={'Add ' + product.name + ' to bag'}>＋</button>
       <span className="product-image-hint">VIEW PRODUCT</span>
     </div>
     <div className="product-info">
@@ -87,11 +126,8 @@ function ProductCard({ product, onAdd, onOpen }) {
 
 function ProductDetailDialog({ product, onClose, onAdd }) {
   const [quantity, setQuantity] = useState(1);
-  useEffect(() => {
-    const handleKeyDown = (event) => { if (event.key === 'Escape') onClose(); };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onClose]);
+  const dialogRef = useRef(null);
+  useDialogAccessibility(dialogRef, onClose);
   const gallery = [
     { src: product.image, alt: product.alt, label: 'Product packaging', type: 'pack' },
     { src: product.applicationImage || 'photo-1556228720-195a672e8a03', alt: 'Skincare application in progress', label: 'Application', type: 'application' },
@@ -102,12 +138,12 @@ function ProductDetailDialog({ product, onClose, onAdd }) {
   const directions = product.directions || 'Follow the directions printed on the product packaging.';
 
   return <div className="product-detail-overlay" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
-    <section className="product-detail-dialog" role="dialog" aria-modal="true" aria-labelledby="product-detail-title">
+    <section ref={dialogRef} className="product-detail-dialog" role="dialog" aria-modal="true" aria-labelledby="product-detail-title" tabIndex={-1}>
       <button className="dialog-close" onClick={onClose} aria-label="Close product details">×</button>
       <div className="product-detail-layout">
         <div className="product-detail-gallery">
           <div className={'product-detail-photo ' + product.tone}>
-            <img src={photo(gallery[activeImage].src, 1200)} alt={gallery[activeImage].alt} />
+            <img src={photo(gallery[activeImage].src, 1200)} alt={gallery[activeImage].alt} loading="eager" decoding="async" width="900" height="900" />
             <span className="product-gallery-label">{gallery[activeImage].label}</span>
           </div>
           <div className="product-gallery-thumbnails" aria-label="Product image gallery">
@@ -147,8 +183,10 @@ function ProductDetailDialog({ product, onClose, onAdd }) {
 function AccountDialog({ onClose }) {
   const [mode, setMode] = useState('signin');
   const [submitted, setSubmitted] = useState(false);
+  const dialogRef = useRef(null);
+  useDialogAccessibility(dialogRef, onClose);
   return <div className="account-overlay" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
-    <section className="account-dialog" role="dialog" aria-modal="true" aria-labelledby="account-title">
+    <section ref={dialogRef} className="account-dialog" role="dialog" aria-modal="true" aria-labelledby="account-title" tabIndex={-1}>
       <button className="dialog-close" onClick={onClose} aria-label="Close account dialog">×</button>
       <p className="eyebrow">YOUR PARECURE ACCOUNT</p>
       <h2 id="account-title">{mode === 'signin' ? 'Welcome back.' : 'Create your account.'}</h2>
@@ -175,6 +213,8 @@ function CheckoutDialog({ bag, subtotal, onClose, onOrderComplete }) {
   const [customer, setCustomer] = useState({ name: '', email: '', phone: '', address: '', suburb: '', city: '', province: 'Gauteng', postalCode: '' });
   const [paymentStatus, setPaymentStatus] = useState('');
   const [orderNumber, setOrderNumber] = useState('');
+  const dialogRef = useRef(null);
+  useDialogAccessibility(dialogRef, onClose);
 
   const updateCustomer = (field, value) => setCustomer((current) => ({ ...current, [field]: value }));
   const processPaymentChoice = (outcome) => {
@@ -192,7 +232,7 @@ function CheckoutDialog({ bag, subtotal, onClose, onOrderComplete }) {
   };
 
   return <div className="checkout-overlay" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
-    <section className="checkout-dialog" role="dialog" aria-modal="true" aria-labelledby="checkout-title">
+    <section ref={dialogRef} className="checkout-dialog" role="dialog" aria-modal="true" aria-labelledby="checkout-title" tabIndex={-1}>
       <button className="dialog-close" onClick={onClose} aria-label="Close checkout">×</button>
       <div className="checkout-topline"><span>PARECURE BEAUTY</span><span><span className="checkout-lock">▣</span> SECURE CHECKOUT</span></div>
       <div className="checkout-progress" aria-label="Checkout progress">
@@ -275,7 +315,19 @@ function CheckoutDialog({ bag, subtotal, onClose, onOrderComplete }) {
 }
 
 export default function App() {
-  const [bag, setBag] = useState([]);
+  const [bag, setBag] = useState(() => {
+    try {
+      const saved = JSON.parse(window.localStorage.getItem('parecure-bag-v1') || '[]');
+      if (!Array.isArray(saved)) return [];
+      return saved.map((entry) => {
+        const product = products.find((item) => item.id === entry.id);
+        const quantity = Number.isSafeInteger(entry.quantity) && entry.quantity > 0 ? Math.min(entry.quantity, 99) : 0;
+        return product && quantity ? { ...product, quantity } : null;
+      }).filter(Boolean);
+    } catch {
+      return [];
+    }
+  });
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [bagOpen, setBagOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -286,9 +338,43 @@ export default function App() {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('ALL');
   const [sort, setSort] = useState('featured');
+  const bagDialogRef = useRef(null);
+  const closeBag = () => setBagOpen(false);
+  useDialogAccessibility(bagDialogRef, closeBag, bagOpen);
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem('parecure-bag-v1', JSON.stringify(bag.map(({ id, quantity }) => ({ id, quantity }))));
+    } catch {
+      // Keep the current in-memory bag if browser storage is unavailable.
+    }
+  }, [bag]);
+
+  useEffect(() => {
+    const syncBag = (event) => {
+      if (event.key !== 'parecure-bag-v1') return;
+      try {
+        const saved = JSON.parse(event.newValue || '[]');
+        if (Array.isArray(saved)) setBag(saved.map((entry) => {
+          const product = products.find((item) => item.id === entry.id);
+          const quantity = Number.isSafeInteger(entry.quantity) && entry.quantity > 0 ? Math.min(entry.quantity, 99) : 0;
+          return product && quantity ? { ...product, quantity } : null;
+        }).filter(Boolean));
+      } catch {
+        // Ignore malformed updates from another tab.
+      }
+    };
+    window.addEventListener('storage', syncBag);
+    return () => window.removeEventListener('storage', syncBag);
+  }, []);
 
   const visibleProducts = useMemo(() => {
-    let list = products.filter((product) => (category === 'ALL' || product.category === category) && (product.name + ' ' + product.detail).toLowerCase().includes(search.toLowerCase()));
+    const tokens = search.trim().toLocaleLowerCase().split(/\\s+/).filter(Boolean);
+    let list = products.filter((product) => {
+      const matchesCategory = category === 'ALL' || product.category === category;
+      const searchable = [product.name, product.category, product.detail, product.tagline, product.subTagline, product.description, product.ingredients, product.suitability, ...(product.highlights || [])].join(' ').toLocaleLowerCase();
+      return matchesCategory && tokens.every((token) => searchable.includes(token));
+    });
     if (sort === 'low') list = [...list].sort((a, b) => a.price - b.price);
     if (sort === 'high') list = [...list].sort((a, b) => b.price - a.price);
     return list;
@@ -309,19 +395,25 @@ export default function App() {
     <div className="announcement">A little care goes a long way <span>✳</span> Discover the PareCure ritual</div>
     <header className="site-header">
       <a className="wordmark" href="#top" aria-label="PareCure home"><img className="brand-logo" src="/assets/logo/parecure-logo.png" alt="PareCure Beauty" /></a>
-      <button className="menu-toggle" aria-label="Toggle menu" aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}>☰</button>
-      <nav className={'main-nav ' + (menuOpen ? 'open' : '')} aria-label="Main navigation"><a href="#shop" onClick={() => { setCategory('ALL'); setMenuOpen(false); }}>Shop all</a><button type="button" className="menu-category" onClick={() => { setCategory('FACE CARE'); setMenuOpen(false); document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth' }); }}>Face care</button><button type="button" className="menu-category" onClick={() => { setCategory('BODY CARE'); setMenuOpen(false); document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth' }); }}>Body care</button><a href="#story" onClick={() => setMenuOpen(false)}>Our philosophy</a><a href="#ritual" onClick={() => setMenuOpen(false)}>The ritual</a></nav>
+      <button className="menu-toggle" type="button" aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'} aria-expanded={menuOpen} aria-controls="primary-navigation" onClick={() => setMenuOpen(!menuOpen)}>☰</button>
+      <nav id="primary-navigation" className={'main-nav ' + (menuOpen ? 'open' : '')} aria-label="Main navigation"><a href="#shop" onClick={() => { setCategory('ALL'); setMenuOpen(false); }}>Shop all</a><button type="button" className="menu-category" onClick={() => { setCategory('FACE CARE'); setMenuOpen(false); document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth' }); }}>Face care</button><button type="button" className="menu-category" onClick={() => { setCategory('BODY CARE'); setMenuOpen(false); document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth' }); }}>Body care</button><a href="#story" onClick={() => setMenuOpen(false)}>Our philosophy</a><a href="#ritual" onClick={() => setMenuOpen(false)}>The ritual</a></nav>
       <div className="header-actions"><button className="account-button" onClick={() => setAccountOpen(true)}>Account</button><button className="bag-button" onClick={() => setBagOpen(true)} aria-label={'Open shopping bag, ' + itemCount + ' items'}>Bag <span>{itemCount}</span></button></div>
     </header>
     <main id="top">
       <section className="hero">
         <div className="hero-copy"><p className="eyebrow">YOUR SKIN. YOUR STORY.</p><h1>Feel good in<br /><em>your own skin.</em></h1><p className="hero-intro">Thoughtful skincare for the moments you give back to yourself. Meet your new everyday ritual.</p><a className="button button-dark" href="#shop">Explore the collection <span>↗</span></a><div className="hero-note"><span className="gold-dot" /> Made for your daily moment of care</div></div>
-        <div className="hero-visual"><img src="/assets/logo/HeroImage.png" alt="Woman gently applying face cream to her cheek" /><div className="image-caption"><span>THE PARECURE EDIT</span><span>01 / EVERYDAY ESSENTIALS</span></div></div>
+        <div className="hero-visual"><img src="/assets/logo/HeroImage.png" alt="Woman gently applying face cream to her cheek" loading="eager" fetchPriority="high" decoding="async" width="1200" height="900" /><div className="image-caption"><span>THE PARECURE EDIT</span><span>01 / EVERYDAY ESSENTIALS</span></div></div>
         <div className="hero-side-note">CARE THAT FEELS LIKE YOU · EST. WITH INTENTION</div>
       </section>
       <section className="ticker" aria-label="Brand values"><span>SKINCARE WITH INTENTION</span><b>✳</b><span>YOUR DAILY RITUAL</span><b>✳</b><span>CONFIDENCE IN EVERY DROP</span><b>✳</b><span>SKINCARE WITH INTENTION</span></section>
       <section className="collection section" id="shop">
-        <div className="catalogue-tools"><label className="search-field"><span>⌕</span><input type="search" placeholder="Search products" aria-label="Search products" value={search} onChange={(event) => setSearch(event.target.value)} /></label><label className="filter-field"><span>Category</span><select value={category} onChange={(event) => setCategory(event.target.value)}><option value="ALL">All products</option><option value="FACE CARE">Face care</option><option value="BODY CARE">Body care</option></select></label><label className="filter-field"><span>Sort by</span><select value={sort} onChange={(event) => setSort(event.target.value)}><option value="featured">Featured</option><option value="low">Price: low to high</option><option value="high">Price: high to low</option></select></label></div>
+        <div className="catalogue-tools">
+          <label className="search-field"><span aria-hidden="true">⌕</span><input type="search" placeholder="Search name, ingredient or benefit" aria-label="Search product names, ingredients and benefits" value={search} onChange={(event) => setSearch(event.target.value)} /></label>
+          <label className="filter-field"><span>Category</span><select aria-label="Filter by category" value={category} onChange={(event) => setCategory(event.target.value)}><option value="ALL">All products</option><option value="FACE CARE">Face care</option><option value="BODY CARE">Body care</option></select></label>
+          <label className="filter-field"><span>Sort by</span><select aria-label="Sort products" value={sort} onChange={(event) => setSort(event.target.value)}><option value="featured">Featured</option><option value="low">Price: low to high</option><option value="high">Price: high to low</option></select></label>
+          {(search || category !== 'ALL' || sort !== 'featured') && <button type="button" className="clear-filters" onClick={() => { setSearch(''); setCategory('ALL'); setSort('featured'); }}>Clear filters</button>}
+        </div>
+        <p className="catalogue-results" role="status" aria-live="polite">{visibleProducts.length} {visibleProducts.length === 1 ? 'product' : 'products'} found</p>
         <div className="product-grid">{visibleProducts.map((product) => <ProductCard key={product.id} product={product} onAdd={addToBag} onOpen={setSelectedProduct} />)}</div>
         {!visibleProducts.length && <p className="no-products">No products match that search. Try another name or category.</p>}
       </section>
@@ -331,7 +423,7 @@ export default function App() {
     </main>
     <footer className="footer"><a className="wordmark footer-mark" href="#top" aria-label="PareCure home"><img className="brand-logo" src="/assets/logo/parecure-logo.png" alt="PareCure Beauty" /></a><p>Care for the skin you're in.</p><div className="footer-links"><a href="#shop">Shop</a><button onClick={() => setAccountOpen(true)}>My account</button><a href="mailto:hello@parecure.com">Contact</a><a href="#footer-policies">Delivery & returns</a><a href="#footer-policies">Privacy & terms</a></div><div className="footer-bottom" id="footer-policies"><span>© {new Date().getFullYear()} PareCure Beauty</span><span>Made with intention.</span><a href="mailto:hello@parecure.com">Get in touch ↗</a></div></footer>
     {selectedProduct && <ProductDetailDialog product={selectedProduct} onClose={() => setSelectedProduct(null)} onAdd={(product) => { setSelectedProduct(null); setBag((current) => { const existing = current.find((item) => item.id === product.id); return existing ? current.map((item) => item.id === product.id ? { ...item, quantity: item.quantity + product.quantity } : item) : [...current, { ...product }]; }); setBagOpen(true); }} />}
-    {bagOpen && <div className="bag-overlay" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setBagOpen(false); }}><button className="overlay-close" onClick={() => setBagOpen(false)} aria-label="Close shopping bag">×</button><aside className="bag-panel" role="dialog" aria-modal="true" aria-label="Shopping bag"><div className="bag-heading"><p className="eyebrow">YOUR SELECTION</p><h2>Your bag <span>({itemCount})</span></h2></div><div className="bag-items">{bag.length ? bag.map((item) => <div className="bag-item" key={item.id}><img src={photo(item.image, 180)} alt="" /><div className="bag-item-copy"><strong>{item.name}</strong><small>{item.detail}</small><b>{money(item.price)}</b><div className="quantity-control"><button onClick={() => updateQuantity(item.id, -1)} aria-label={'Decrease ' + item.name + ' quantity'}>−</button><span>{item.quantity}</span><button onClick={() => updateQuantity(item.id, 1)} aria-label={'Increase ' + item.name + ' quantity'}>+</button><button className="remove-item" onClick={() => setBag((current) => current.filter((entry) => entry.id !== item.id))}>Remove</button></div></div></div>) : <p className="empty-bag">Your bag is taking a little breather.<br />Explore the collection to find your essentials.</p>}</div><div className="bag-summary"><div><span>Subtotal</span><strong>{money(subtotal)}</strong></div><small>Delivery and any applicable charges are calculated at checkout.</small><button className="button button-dark checkout-button" disabled={!bag.length} onClick={() => { setBagOpen(false); setCheckoutOpen(true); }}>Continue to checkout <span>↗</span></button><p>Payment processing is not enabled yet. No payment will be taken.</p></div></aside></div>}
+    {bagOpen && <div className="bag-overlay" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setBagOpen(false); }}><button className="overlay-close" onClick={() => setBagOpen(false)} aria-label="Close shopping bag">×</button><aside ref={bagDialogRef} className="bag-panel" role="dialog" aria-modal="true" aria-labelledby="bag-title" tabIndex={-1}><div className="bag-heading"><p className="eyebrow">YOUR SELECTION</p><h2 id="bag-title">Your bag <span>({itemCount})</span></h2></div><div className="bag-items">{bag.length ? bag.map((item) => <div className="bag-item" key={item.id}><img src={photo(item.image, 180)} alt="" loading="lazy" decoding="async" width="180" height="180" /><div className="bag-item-copy"><strong>{item.name}</strong><small>{item.detail}</small><b>{money(item.price)}</b><div className="quantity-control"><button onClick={() => updateQuantity(item.id, -1)} aria-label={'Decrease ' + item.name + ' quantity'}>−</button><span>{item.quantity}</span><button onClick={() => updateQuantity(item.id, 1)} aria-label={'Increase ' + item.name + ' quantity'}>+</button><button className="remove-item" onClick={() => setBag((current) => current.filter((entry) => entry.id !== item.id))}>Remove</button></div></div></div>) : <p className="empty-bag">Your bag is taking a little breather.<br />Explore the collection to find your essentials.</p>}</div><div className="bag-summary"><div><span>Subtotal</span><strong>{money(subtotal)}</strong></div><small>Delivery and any applicable charges are calculated at checkout.</small><button className="button button-dark checkout-button" disabled={!bag.length} onClick={() => { setBagOpen(false); setCheckoutOpen(true); }}>Continue to checkout <span>↗</span></button><p>Payment processing is not enabled yet. No payment will be taken.</p></div></aside></div>}
     {checkoutOpen && <CheckoutDialog bag={bag} subtotal={subtotal} onClose={() => setCheckoutOpen(false)} onOrderComplete={() => { setBag([]); setCheckoutOpen(false); }} />}
     {accountOpen && <AccountDialog onClose={() => setAccountOpen(false)} />}
   </>;
