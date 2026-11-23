@@ -20,7 +20,7 @@ function ProductCard({ product, onAdd }) {
       <span className="product-image-hint">VIEW PRODUCT</span>
     </div>
     <div className="product-info">
-      <div className="product-copy"><h3>{product.name}</h3><p>{product.detail}</p><span className="product-rating"><span aria-label="5 out of 5 stars">★★★★★</span> <small>Customer favourite</small></span></div>
+      <div className="product-copy"><h3>{product.name}</h3><p>{product.detail}</p><span className="product-rating"><small>EVERYDAY SKINCARE ESSENTIAL</small></span></div>
       <span className="product-price">{money(product.price)}</span>
     </div>
     <button className="product-add-button" onClick={() => onAdd(product)}>Add to bag <span>↗</span></button>
