@@ -5,7 +5,6 @@ const products = [
   { id: 'oil', category: 'BODY CARE', name: 'Dark Inner Thigh & Underarms Remover Tissue Oil', detail: 'Targeted body care · 50 ml', price: 99.99, image: '/assets/logo/tissue-oil-50ml.jpg.png', tone: 'olive', alt: 'PareCure tissue oil' },
   { id: 'facewash', category: 'FACE CARE', name: 'PareCure Face Wash', detail: 'Daily facial cleansing · 100 ml', price: 79.99, image: '/assets/logo/face-wash-100ml.png', tone: 'blush', alt: 'PareCure face wash' },
   { id: 'brightening-serum', category: 'FACE CARE', name: 'PareCure Brightening Serum', detail: 'Brightening skincare · 50 ml', price: 179.99, image: '/assets/logo/brightening-serum-50ml.png', tone: 'sand', alt: 'PareCure brightening serum' },
-  { id: 'sunscreen', category: 'SUN CARE', name: 'PareCure Sunscreen SPF 50', detail: 'Face sunscreen · 100 ml', price: 199.99, image: 'photo-1556229010-6c3f2c9ca5f8', tone: 'olive', alt: 'Facial sunscreen skincare product' },
 ];
 const photo = (id, width = 900) => id.startsWith('/') ? id : 'https://images.unsplash.com/' + id + '?auto=format&fit=crop&w=' + width + '&q=85';
 const money = (value) => 'R ' + value.toFixed(2);
