@@ -310,3 +310,35 @@
  .product-detail-information h3{font-size:20px}
  .product-detail-information p{font-size:12px}
 }
+
+/* Keep the product-details close control visible while the panel scrolls. */
+.product-detail-dialog>.dialog-close{
+  position:sticky;
+  top:12px;
+  float:right;
+  z-index:5;
+  display:grid;
+  place-items:center;
+  width:42px;
+  height:42px;
+  margin:10px 10px -52px 0;
+  border:1px solid rgba(36,35,31,.12);
+  border-radius:50%;
+  background:rgba(255,255,255,.96);
+  color:var(--ink);
+  font-size:28px;
+  line-height:1;
+  box-shadow:0 3px 14px rgba(0,0,0,.12);
+  cursor:pointer;
+}
+.product-detail-dialog>.dialog-close:hover{background:#fff;color:var(--red)}
+.product-detail-dialog>.dialog-close:focus-visible{outline:2px solid var(--red);outline-offset:3px}
+@media(max-width:700px){
+  .product-detail-dialog>.dialog-close{
+    position:sticky;
+    top:10px;
+    margin:10px 10px -52px 0;
+    width:44px;
+    height:44px;
+  }
+}
