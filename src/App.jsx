@@ -49,11 +49,105 @@ function AccountDialog({ onClose }) {
   </div>;
 }
 
+
+function CheckoutDialog({ bag, subtotal, onClose, onOrderComplete }) {
+  const [stage, setStage] = useState('details');
+  const [paymentMethod, setPaymentMethod] = useState('card');
+  const [customer, setCustomer] = useState({ name: '', email: '', phone: '', address: '', suburb: '', city: '', province: 'Gauteng', postalCode: '' });
+  const [paymentStatus, setPaymentStatus] = useState('');
+  const [orderNumber, setOrderNumber] = useState('');
+
+  const updateCustomer = (field, value) => setCustomer((current) => ({ ...current, [field]: value }));
+  const placeDemoPayment = (outcome) => {
+    if (outcome === 'success') {
+      setOrderNumber('PC-' + String(Date.now()).slice(-7));
+      setPaymentStatus('success');
+      setStage('confirmation');
+    } else if (outcome === 'failure') {
+      setPaymentStatus('failure');
+      setStage('result');
+    } else {
+      setPaymentStatus('cancelled');
+      setStage('result');
+    }
+  };
+
+  return <div className="checkout-overlay" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
+    <section className="checkout-dialog" role="dialog" aria-modal="true" aria-labelledby="checkout-title">
+      <button className="dialog-close" onClick={onClose} aria-label="Close checkout">×</button>
+      <div className="checkout-topline"><span>PARECURE BEAUTY</span><span><span className="checkout-lock">▣</span> DEMO SECURE CHECKOUT</span></div>
+      <div className="checkout-progress" aria-label="Checkout progress">
+        <span className={stage === 'details' ? 'active' : 'complete'}>1. Delivery</span><i />
+        <span className={stage === 'payment' || stage === 'result' ? 'active' : stage === 'confirmation' ? 'complete' : ''}>2. Payment</span><i />
+        <span className={stage === 'confirmation' ? 'active' : ''}>3. Confirmation</span>
+      </div>
+
+      {stage === 'details' && <>
+        <p className="eyebrow">ALMOST YOURS</p>
+        <h2 id="checkout-title">Delivery details.</h2>
+        <p className="checkout-intro">Where should we send your PareCure essentials?</p>
+        <form className="checkout-form" onSubmit={(event) => { event.preventDefault(); setStage('payment'); }}>
+          <div className="checkout-fields">
+            <label>Full name<input autoComplete="name" required value={customer.name} onChange={(event) => updateCustomer('name', event.target.value)} placeholder="Full name" /></label>
+            <label>Email address<input type="email" autoComplete="email" required value={customer.email} onChange={(event) => updateCustomer('email', event.target.value)} placeholder="you@example.com" /></label>
+            <label>Phone number<input type="tel" autoComplete="tel" required value={customer.phone} onChange={(event) => updateCustomer('phone', event.target.value)} placeholder="e.g. 071 234 5678" /></label>
+            <label className="checkout-wide">Street address<input autoComplete="street-address" required value={customer.address} onChange={(event) => updateCustomer('address', event.target.value)} placeholder="House number and street" /></label>
+            <label>Suburb<input autoComplete="address-line2" required value={customer.suburb} onChange={(event) => updateCustomer('suburb', event.target.value)} placeholder="Suburb" /></label>
+            <label>City / town<input autoComplete="address-level2" required value={customer.city} onChange={(event) => updateCustomer('city', event.target.value)} placeholder="City" /></label>
+            <label>Province<select required value={customer.province} onChange={(event) => updateCustomer('province', event.target.value)}><option>Eastern Cape</option><option>Free State</option><option>Gauteng</option><option>KwaZulu-Natal</option><option>Limpopo</option><option>Mpumalanga</option><option>Northern Cape</option><option>North West</option><option>Western Cape</option></select></label>
+            <label>Postal code<input autoComplete="postal-code" required inputMode="numeric" value={customer.postalCode} onChange={(event) => updateCustomer('postalCode', event.target.value)} placeholder="Postal code" /></label>
+          </div>
+          <div className="checkout-order-summary"><span>{bag.reduce((n, item) => n + item.quantity, 0)} item(s) in your order</span><strong>{money(subtotal)}</strong></div>
+          <p className="checkout-demo-note">Delivery pricing is not connected in this demo. No delivery fee is being charged or calculated.</p>
+          <button className="button button-dark checkout-primary" type="submit">Continue to payment <span>↗</span></button>
+        </form>
+      </>}
+
+      {stage === 'payment' && <>
+        <p className="eyebrow">DEMO PAYMENT GATEWAY</p>
+        <h2 id="checkout-title">Choose how to pay.</h2>
+        <p className="checkout-intro">This is a payment simulation. No money will be charged and no card or banking details are transmitted.</p>
+        <div className="payment-methods">
+          <label className={paymentMethod === 'card' ? 'selected' : ''}><input type="radio" name="payment-method" value="card" checked={paymentMethod === 'card'} onChange={() => setPaymentMethod('card')} /><span className="payment-method-icon">▣</span><span><strong>Bank card</strong><small>Visa · Mastercard</small></span><b>›</b></label>
+          <label className={paymentMethod === 'eft' ? 'selected' : ''}><input type="radio" name="payment-method" value="eft" checked={paymentMethod === 'eft'} onChange={() => setPaymentMethod('eft')} /><span className="payment-method-icon">⇄</span><span><strong>Instant EFT</strong><small>Simulated bank payment</small></span><b>›</b></label>
+          <label className={paymentMethod === 'wallet' ? 'selected' : ''}><input type="radio" name="payment-method" value="wallet" checked={paymentMethod === 'wallet'} onChange={() => setPaymentMethod('wallet')} /><span className="payment-method-icon">◈</span><span><strong>PayFast-style checkout</strong><small>Hosted payment experience preview</small></span><b>›</b></label>
+        </div>
+        <div className="gateway-order-total"><span>Order total</span><strong>{money(subtotal)}</strong></div>
+        <div className="demo-actions">
+          <button className="button button-dark checkout-primary" onClick={() => placeDemoPayment('success')}>Simulate successful payment <span>↗</span></button>
+          <button className="demo-secondary" onClick={() => placeDemoPayment('failure')}>Test a declined payment</button>
+          <button className="demo-cancel" onClick={() => placeDemoPayment('cancel')}>Cancel payment</button>
+        </div>
+        <p className="checkout-demo-note">Demo controls only · No live payment provider is connected.</p>
+        <button className="checkout-back" onClick={() => setStage('details')}>← Back to delivery details</button>
+      </>}
+
+      {stage === 'result' && <>
+        <div className={'payment-result-icon ' + (paymentStatus === 'failure' ? 'failed' : 'cancelled')}>{paymentStatus === 'failure' ? '!' : '×'}</div>
+        <p className="eyebrow">PAYMENT {paymentStatus === 'failure' ? 'NOT APPROVED' : 'CANCELLED'}</p>
+        <h2 id="checkout-title">{paymentStatus === 'failure' ? 'That payment didn’t go through.' : 'Payment was cancelled.'}</h2>
+        <p className="checkout-intro">{paymentStatus === 'failure' ? 'This is a simulated decline. Your order has not been placed and no money was charged.' : 'You left the demo payment step. Your order has not been placed and no money was charged.'}</p>
+        <div className="demo-actions"><button className="button button-dark checkout-primary" onClick={() => { setPaymentStatus(''); setStage('payment'); }}>Try payment again <span>↗</span></button><button className="checkout-back" onClick={() => setStage('details')}>Edit delivery details</button><button className="demo-cancel" onClick={onClose}>Return to shopping bag</button></div>
+      </>}
+
+      {stage === 'confirmation' && <>
+        <div className="payment-result-icon success">✓</div>
+        <p className="eyebrow">PAYMENT SIMULATION COMPLETE</p>
+        <h2 id="checkout-title">Thank you, {customer.name.split(' ')[0]}.</h2>
+        <p className="checkout-intro">The demo payment was successful. Your simulated order has been confirmed.</p>
+        <div className="confirmation-card"><span>DEMO ORDER NUMBER</span><strong>{orderNumber}</strong><div><span>Payment method</span><b>{paymentMethod === 'card' ? 'Bank card' : paymentMethod === 'eft' ? 'Instant EFT' : 'PayFast-style checkout'}</b></div><div><span>Order total</span><b>{money(subtotal)}</b></div><div><span>Delivery to</span><b>{customer.suburb}, {customer.city}</b></div><small>No real payment was taken. This confirmation is for demonstration only.</small></div>
+        <button className="button button-dark checkout-primary" onClick={() => onOrderComplete({ orderNumber, customer, paymentMethod, total: subtotal, items: bag })}>Finish and return to store <span>↗</span></button>
+      </>}
+    </section>
+  </div>;
+}
+
 export default function App() {
   const [bag, setBag] = useState([]);
   const [bagOpen, setBagOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
   const [search, setSearch] = useState('');
@@ -103,7 +197,8 @@ export default function App() {
       <section className="newsletter section"><div><p className="eyebrow">NOTES FROM PARECURE</p><h2>A little beauty<br /><em>in your inbox.</em></h2></div><form onSubmit={(event) => { event.preventDefault(); setSubscribed(true); }}><label htmlFor="email">Skincare notes, new launches and thoughtful offers.</label><div className="email-row"><input id="email" type="email" placeholder="Your email address" value={email} onChange={(event) => setEmail(event.target.value)} required /><button type="submit" aria-label="Subscribe">↗</button></div><small>{subscribed ? 'Thank you. Newsletter delivery will be enabled when email services are connected.' : 'By subscribing, you agree to receive updates from PareCure.'}</small></form></section>
     </main>
     <footer className="footer"><a className="wordmark footer-mark" href="#top" aria-label="PareCure home"><img className="brand-logo" src="/assets/logo/parecure-logo.png" alt="PareCure Beauty" /></a><p>Care for the skin you're in.</p><div className="footer-links"><a href="#shop">Shop</a><button onClick={() => setAccountOpen(true)}>My account</button><a href="mailto:hello@parecure.com">Contact</a><a href="#footer-policies">Delivery & returns</a><a href="#footer-policies">Privacy & terms</a></div><div className="footer-bottom" id="footer-policies"><span>© {new Date().getFullYear()} PareCure Beauty</span><span>Made with intention.</span><a href="mailto:hello@parecure.com">Get in touch ↗</a></div></footer>
-    {bagOpen && <div className="bag-overlay" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setBagOpen(false); }}><button className="overlay-close" onClick={() => setBagOpen(false)} aria-label="Close shopping bag">×</button><aside className="bag-panel" role="dialog" aria-modal="true" aria-label="Shopping bag"><div className="bag-heading"><p className="eyebrow">YOUR SELECTION</p><h2>Your bag <span>({itemCount})</span></h2></div><div className="bag-items">{bag.length ? bag.map((item) => <div className="bag-item" key={item.id}><img src={photo(item.image, 180)} alt="" /><div className="bag-item-copy"><strong>{item.name}</strong><small>{item.detail}</small><b>{money(item.price)}</b><div className="quantity-control"><button onClick={() => updateQuantity(item.id, -1)} aria-label={'Decrease ' + item.name + ' quantity'}>−</button><span>{item.quantity}</span><button onClick={() => updateQuantity(item.id, 1)} aria-label={'Increase ' + item.name + ' quantity'}>+</button><button className="remove-item" onClick={() => setBag((current) => current.filter((entry) => entry.id !== item.id))}>Remove</button></div></div></div>) : <p className="empty-bag">Your bag is taking a little breather.<br />Explore the collection to find your essentials.</p>}</div><div className="bag-summary"><div><span>Subtotal</span><strong>{money(subtotal)}</strong></div><small>Delivery and any applicable charges are calculated at checkout.</small><button className="button button-dark checkout-button" disabled={!bag.length} onClick={() => window.alert('Online checkout is not connected yet. Payment and delivery services must be configured before orders can be placed.')}>Continue to checkout <span>↗</span></button><p>Secure checkout will be available once payment and delivery services are connected.</p></div></aside></div>}
+    {bagOpen && <div className="bag-overlay" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setBagOpen(false); }}><button className="overlay-close" onClick={() => setBagOpen(false)} aria-label="Close shopping bag">×</button><aside className="bag-panel" role="dialog" aria-modal="true" aria-label="Shopping bag"><div className="bag-heading"><p className="eyebrow">YOUR SELECTION</p><h2>Your bag <span>({itemCount})</span></h2></div><div className="bag-items">{bag.length ? bag.map((item) => <div className="bag-item" key={item.id}><img src={photo(item.image, 180)} alt="" /><div className="bag-item-copy"><strong>{item.name}</strong><small>{item.detail}</small><b>{money(item.price)}</b><div className="quantity-control"><button onClick={() => updateQuantity(item.id, -1)} aria-label={'Decrease ' + item.name + ' quantity'}>−</button><span>{item.quantity}</span><button onClick={() => updateQuantity(item.id, 1)} aria-label={'Increase ' + item.name + ' quantity'}>+</button><button className="remove-item" onClick={() => setBag((current) => current.filter((entry) => entry.id !== item.id))}>Remove</button></div></div></div>) : <p className="empty-bag">Your bag is taking a little breather.<br />Explore the collection to find your essentials.</p>}</div><div className="bag-summary"><div><span>Subtotal</span><strong>{money(subtotal)}</strong></div><small>Delivery and any applicable charges are calculated at checkout.</small><button className="button button-dark checkout-button" disabled={!bag.length} onClick={() => { setBagOpen(false); setCheckoutOpen(true); }}>Continue to checkout <span>↗</span></button><p>Secure checkout will be available once payment and delivery services are connected.</p></div></aside></div>}
+    {checkoutOpen && <CheckoutDialog bag={bag} subtotal={subtotal} onClose={() => setCheckoutOpen(false)} onOrderComplete={() => { setBag([]); setCheckoutOpen(false); }} />}
     {accountOpen && <AccountDialog onClose={() => setAccountOpen(false)} />}
   </>;
 }
