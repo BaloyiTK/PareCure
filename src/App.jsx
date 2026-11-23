@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 const products = [
   { id: 'bodylotion', category: 'BODY CARE', name: 'PareCure Body Lotion', detail: 'Daily body moisturising care · 250 ml', description: 'A daily body-care essential designed to be part of a simple, considered moisturising routine. The 250 ml bottle is made for everyday use as you take a little time to care for your skin.', price: 129.99, image: '/assets/logo/body-lotion-250ml.png', tone: 'blush', alt: 'PareCure body lotion bottle' },
@@ -29,6 +29,11 @@ function ProductCard({ product, onAdd, onOpen }) {
 
 function ProductDetailDialog({ product, onClose, onAdd }) {
   const [quantity, setQuantity] = useState(1);
+  useEffect(() => {
+    const handleKeyDown = (event) => { if (event.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
   const gallery = [
     { src: product.image, alt: product.alt, label: 'Product packaging', type: 'pack' },
     { src: product.applicationImage || 'photo-1556228720-195a672e8a03', alt: 'Skincare application in progress', label: 'Application', type: 'application' },
