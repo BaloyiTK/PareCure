@@ -14,13 +14,16 @@ function ProductCard({ product, onAdd }) {
   return <article className="product-card">
     <div className={'product-image ' + product.tone}>
       <span className="product-tag">{product.category}</span>
+      <span className="product-card-badge">PARECURE ESSENTIAL</span>
       <img src={photo(product.image)} alt={product.alt} loading="lazy" />
+      <button className="product-quick-add" onClick={() => onAdd(product)} aria-label={'Add ' + product.name + ' to bag'}>＋</button>
+      <span className="product-image-hint">VIEW PRODUCT</span>
     </div>
     <div className="product-info">
-      <div className="product-copy"><h3>{product.name}</h3><p>{product.detail}</p></div>
+      <div className="product-copy"><h3>{product.name}</h3><p>{product.detail}</p><span className="product-rating"><span aria-label="5 out of 5 stars">★★★★★</span> <small>Customer favourite</small></span></div>
       <span className="product-price">{money(product.price)}</span>
     </div>
-    <button className="text-link" onClick={() => onAdd(product)}>Add to bag <span>↗</span></button>
+    <button className="product-add-button" onClick={() => onAdd(product)}>Add to bag <span>↗</span></button>
   </article>;
 }
 
