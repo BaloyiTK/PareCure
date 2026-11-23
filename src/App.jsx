@@ -371,11 +371,12 @@ export default function App() {
   }, []);
 
   const visibleProducts = useMemo(() => {
-    const tokens = search.trim().toLocaleLowerCase().split(/\\s+/).filter(Boolean);
+    const normalise = (value) => value.normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').toLocaleLowerCase();
+    const tokens = normalise(search.trim()).split(/\\s+/).filter(Boolean);
     let list = products.filter((product) => {
       const matchesCategory = category === 'ALL' || product.category === category;
-      const searchable = [product.name, product.category, product.detail, product.tagline, product.subTagline, product.description, product.ingredients, product.suitability, ...(product.highlights || [])].join(' ').toLocaleLowerCase();
-      return matchesCategory && tokens.every((token) => searchable.includes(token));
+      const searchable = [product.name, product.category, product.detail, product.tagline, product.subTagline, product.description, product.ingredients, product.suitability, ...(product.highlights || [])].join(' ');
+      return matchesCategory && tokens.every((token) => normalise(searchable).includes(token));
     });
     if (sort === 'low') list = [...list].sort((a, b) => a.price - b.price);
     if (sort === 'high') list = [...list].sort((a, b) => b.price - a.price);
