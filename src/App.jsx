@@ -236,7 +236,6 @@ function CheckoutDialog({ bag, subtotal, onClose, onOrderComplete }) {
         <div className="payment-methods">
           <label className={paymentMethod === 'card' ? 'selected' : ''}><input type="radio" name="payment-method" value="card" checked={paymentMethod === 'card'} onChange={() => setPaymentMethod('card')} /><span className="payment-method-icon">▣</span><span><strong>Bank card</strong><small>Visa · Mastercard</small></span><b>›</b></label>
           <label className={paymentMethod === 'cod' ? 'selected' : ''}><input type="radio" name="payment-method" value="cod" checked={paymentMethod === 'cod'} onChange={() => setPaymentMethod('cod')} /><span className="payment-method-icon">⌂</span><span><strong>Payment on delivery</strong><small>Pay when your order arrives</small></span><b>›</b></label>
-          <label className={paymentMethod === 'wallet' ? 'selected' : ''}><input type="radio" name="payment-method" value="wallet" checked={paymentMethod === 'wallet'} onChange={() => setPaymentMethod('wallet')} /><span className="payment-method-icon">◈</span><span><strong>Hosted checkout</strong><small>Hosted payment experience preview</small></span><b>›</b></label>
         </div>
         {paymentMethod === 'cod' && <p className="checkout-demo-note">Payment will be collected when your order is delivered. Please have the order total ready. This checkout preview does not yet arrange delivery or collect payment.</p>}
         {paymentMethod === 'card' && <div className="checkout-fields card-entry-fields" aria-label="Card details">
@@ -268,7 +267,7 @@ function CheckoutDialog({ bag, subtotal, onClose, onOrderComplete }) {
         <p className="eyebrow">ORDER CONFIRMATION</p>
         <h2 id="checkout-title">Thank you, {customer.name.split(' ')[0]}.</h2>
         <p className="checkout-intro">Your checkout details have been received. Payment processing is not enabled yet.</p>
-        <div className="confirmation-card"><span>ORDER NUMBER</span><strong>{orderNumber}</strong><div><span>Payment method</span><b>{paymentMethod === 'card' ? 'Bank card' : paymentMethod === 'cod' ? 'Payment on delivery' : 'Hosted checkout'}</b></div><div><span>Order total</span><b>{money(subtotal)}</b></div><div><span>{deliveryMethod === 'collection' ? 'Fulfilment' : 'Delivery to'}</span><b>{deliveryMethod === 'collection' ? 'Store collection' : `${customer.suburb}, ${customer.city}`}</b></div><small>No payment was taken. Payment processing is not enabled yet.</small></div>
+        <div className="confirmation-card"><span>ORDER NUMBER</span><strong>{orderNumber}</strong><div><span>Payment method</span><b>{paymentMethod === 'card' ? 'Bank card' : 'Payment on delivery'}</b></div><div><span>Order total</span><b>{money(subtotal)}</b></div><div><span>{deliveryMethod === 'collection' ? 'Fulfilment' : 'Delivery to'}</span><b>{deliveryMethod === 'collection' ? 'Store collection' : `${customer.suburb}, ${customer.city}`}</b></div><small>No payment was taken. Payment processing is not enabled yet.</small></div>
         <button className="button button-dark checkout-primary" onClick={() => onOrderComplete({ orderNumber, customer, paymentMethod, total: subtotal, items: bag })}>Finish and return to store <span>↗</span></button>
       </>}
     </section>
