@@ -150,7 +150,7 @@ function ProductDetailDialog({ product, onClose, onAdd }) {
           </div>
           <div className="product-gallery-thumbnails" aria-label="Product image gallery">
             {gallery.map((item, index) => <button type="button" key={item.type} className={activeImage === index ? 'active' : ''} onClick={() => setActiveImage(index)} aria-pressed={activeImage === index} aria-label={'Show ' + item.label}>
-              <img src={photo(item.src, 240)} alt="" loading="lazy" />
+              <img src={photo(item.src, 240)} alt="" loading="lazy" decoding="async" width="240" height="180" />
               <span>{item.label}</span>
             </button>)}
           </div>
