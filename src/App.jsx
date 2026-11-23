@@ -176,7 +176,7 @@ function ProductDetailDialog({ product, onClose, onAdd }) {
             <section><h3>Warnings & precautions</h3><p>{product.warnings || 'Check the product packaging before use.'}</p>{product.claims?.length > 0 && <p className="product-detail-claims">{product.claims.join(' · ')}</p>}</section>
             <section><h3>Manufacturer</h3><p>{product.manufacturer || 'PareCure Beauty'}</p><p>Barcode: {product.barcode || 'Not provided'}</p></section>
           </div>
-          <div className="product-detail-actions"><div className="detail-quantity" aria-label="Quantity"><button onClick={() => setQuantity((value) => Math.max(1, value - 1))} aria-label="Decrease quantity">−</button><span>{quantity}</span><button onClick={() => setQuantity((value) => value + 1)} aria-label="Increase quantity">+</button></div><button className="button button-dark detail-add-button" onClick={() => onAdd({ ...product, quantity })}>Add {quantity} to bag · {money(product.price * quantity)} <span>↗</span></button></div>
+          <div className="product-detail-actions"><div className="detail-quantity" aria-label="Quantity"><button onClick={() => setQuantity((value) => Math.max(1, value - 1))} aria-label="Decrease quantity">−</button><span>{quantity}</span><button onClick={() => setQuantity((value) => Math.min(99, value + 1))} aria-label="Increase quantity">+</button></div><button className="button button-dark detail-add-button" onClick={() => onAdd({ ...product, quantity })}>Add {quantity} to bag · {money(product.price * quantity)} <span>↗</span></button></div>
         </div>
       </div>
     </section>
@@ -322,8 +322,8 @@ export default function App() {
       const saved = JSON.parse(window.localStorage.getItem('parecure-bag-v1') || '[]');
       if (!Array.isArray(saved)) return [];
       return saved.map((entry) => {
-        const product = products.find((item) => item.id === entry.id);
-        const quantity = Number.isSafeInteger(entry.quantity) && entry.quantity > 0 ? Math.min(entry.quantity, 99) : 0;
+        const product = entry && products.find((item) => item.id === entry.id);
+        const quantity = Number.isSafeInteger(entry?.quantity) && entry.quantity > 0 ? Math.min(entry.quantity, 99) : 0;
         return product && quantity ? { ...product, quantity } : null;
       }).filter(Boolean);
     } catch {
@@ -358,8 +358,8 @@ export default function App() {
       try {
         const saved = JSON.parse(event.newValue || '[]');
         if (Array.isArray(saved)) setBag(saved.map((entry) => {
-          const product = products.find((item) => item.id === entry.id);
-          const quantity = Number.isSafeInteger(entry.quantity) && entry.quantity > 0 ? Math.min(entry.quantity, 99) : 0;
+          const product = entry && products.find((item) => item.id === entry.id);
+          const quantity = Number.isSafeInteger(entry?.quantity) && entry.quantity > 0 ? Math.min(entry.quantity, 99) : 0;
           return product && quantity ? { ...product, quantity } : null;
         }).filter(Boolean));
       } catch {
@@ -386,7 +386,7 @@ export default function App() {
   const addToBag = (product) => {
     setBag((current) => {
       const existing = current.find((item) => item.id === product.id);
-      return existing ? current.map((item) => item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item) : [...current, { ...product, quantity: 1 }];
+      return existing ? current.map((item) => item.id === product.id ? { ...item, quantity: Math.min(99, item.quantity + 1) } : item) : [...current, { ...product, quantity: 1 }];
     });
     setBagOpen(true);
   };
@@ -426,7 +426,7 @@ export default function App() {
     </main>
     <footer className="footer"><a className="wordmark footer-mark" href="#top" aria-label="PareCure home"><img className="brand-logo" src="/assets/logo/parecure-logo.png" alt="PareCure Beauty" /></a><p>Care for the skin you're in.</p><div className="footer-links"><a href="#shop">Shop</a><button onClick={() => setAccountOpen(true)}>My account</button><a href="mailto:hello@parecure.com">Contact</a><a href="#footer-policies">Delivery & returns</a><a href="#footer-policies">Privacy & terms</a></div><div className="footer-bottom" id="footer-policies"><span>© {new Date().getFullYear()} PareCure Beauty</span><span>Made with intention.</span><a href="mailto:hello@parecure.com">Get in touch ↗</a></div></footer>
     {selectedProduct && <ProductDetailDialog product={selectedProduct} onClose={() => setSelectedProduct(null)} onAdd={(product) => { setSelectedProduct(null); setBag((current) => { const existing = current.find((item) => item.id === product.id); return existing ? current.map((item) => item.id === product.id ? { ...item, quantity: item.quantity + product.quantity } : item) : [...current, { ...product }]; }); setBagOpen(true); }} />}
-    {bagOpen && <div className="bag-overlay" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setBagOpen(false); }}><button className="overlay-close" onClick={() => setBagOpen(false)} aria-label="Close shopping bag">×</button><aside ref={bagDialogRef} className="bag-panel" role="dialog" aria-modal="true" aria-labelledby="bag-title" tabIndex={-1}><div className="bag-heading"><p className="eyebrow">YOUR SELECTION</p><h2 id="bag-title">Your bag <span>({itemCount})</span></h2></div><div className="bag-items">{bag.length ? bag.map((item) => <div className="bag-item" key={item.id}><img src={photo(item.image, 180)} alt="" loading="lazy" decoding="async" width="180" height="180" /><div className="bag-item-copy"><strong>{item.name}</strong><small>{item.detail}</small><b>{money(item.price)}</b><div className="quantity-control"><button onClick={() => updateQuantity(item.id, -1)} aria-label={'Decrease ' + item.name + ' quantity'}>−</button><span>{item.quantity}</span><button onClick={() => updateQuantity(item.id, 1)} aria-label={'Increase ' + item.name + ' quantity'}>+</button><button className="remove-item" onClick={() => setBag((current) => current.filter((entry) => entry.id !== item.id))}>Remove</button></div></div></div>) : <p className="empty-bag">Your bag is taking a little breather.<br />Explore the collection to find your essentials.</p>}</div><div className="bag-summary"><div><span>Subtotal</span><strong>{money(subtotal)}</strong></div><small>Delivery and any applicable charges are calculated at checkout.</small><button className="button button-dark checkout-button" disabled={!bag.length} onClick={() => { setBagOpen(false); setCheckoutOpen(true); }}>Continue to checkout <span>↗</span></button><p>Payment processing is not enabled yet. No payment will be taken.</p></div></aside></div>}
+    {bagOpen && <div className="bag-overlay" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setBagOpen(false); }}><aside ref={bagDialogRef} className="bag-panel" role="dialog" aria-modal="true" aria-labelledby="bag-title" tabIndex={-1}><button className="overlay-close" onClick={() => setBagOpen(false)} aria-label="Close shopping bag">×</button><div className="bag-heading"><p className="eyebrow">YOUR SELECTION</p><h2 id="bag-title">Your bag <span>({itemCount})</span></h2></div><div className="bag-items">{bag.length ? bag.map((item) => <div className="bag-item" key={item.id}><img src={photo(item.image, 180)} alt="" loading="lazy" decoding="async" width="180" height="180" /><div className="bag-item-copy"><strong>{item.name}</strong><small>{item.detail}</small><b>{money(item.price)}</b><div className="quantity-control"><button onClick={() => updateQuantity(item.id, -1)} aria-label={'Decrease ' + item.name + ' quantity'}>−</button><span>{item.quantity}</span><button onClick={() => updateQuantity(item.id, 1)} aria-label={'Increase ' + item.name + ' quantity'}>+</button><button className="remove-item" onClick={() => setBag((current) => current.filter((entry) => entry.id !== item.id))}>Remove</button></div></div></div>) : <p className="empty-bag">Your bag is taking a little breather.<br />Explore the collection to find your essentials.</p>}</div><div className="bag-summary"><div><span>Subtotal</span><strong>{money(subtotal)}</strong></div><small>Delivery and any applicable charges are calculated at checkout.</small><button className="button button-dark checkout-button" disabled={!bag.length} onClick={() => { setBagOpen(false); setCheckoutOpen(true); }}>Continue to checkout <span>↗</span></button><p>Payment processing is not enabled yet. No payment will be taken.</p></div></aside></div>}
     {checkoutOpen && <CheckoutDialog bag={bag} subtotal={subtotal} onClose={() => setCheckoutOpen(false)} onOrderComplete={() => { setBag([]); setCheckoutOpen(false); }} />}
     {accountOpen && <AccountDialog onClose={() => setAccountOpen(false)} />}
   </>;
