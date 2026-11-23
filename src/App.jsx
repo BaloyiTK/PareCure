@@ -68,6 +68,8 @@ const photo = (id, width = 900) => id.startsWith('/') ? id : 'https://images.uns
 const money = (value) => 'R ' + value.toFixed(2);
 
 function useDialogAccessibility(dialogRef, onClose, active = true) {
+  const closeHandlerRef = useRef(onClose);
+  closeHandlerRef.current = onClose;
   useEffect(() => {
     if (!active || !dialogRef.current) return undefined;
     const dialog = dialogRef.current;
@@ -81,7 +83,7 @@ function useDialogAccessibility(dialogRef, onClose, active = true) {
     const handleKeyDown = (event) => {
       if (event.key === 'Escape') {
         event.preventDefault();
-        onClose();
+        closeHandlerRef.current();
       } else if (event.key === 'Tab') {
         const focusable = getFocusable();
         if (!focusable.length) {
@@ -102,7 +104,7 @@ function useDialogAccessibility(dialogRef, onClose, active = true) {
       document.body.style.overflow = previousOverflow;
       if (previousFocus && typeof previousFocus.focus === 'function') previousFocus.focus();
     };
-  }, [active, dialogRef, onClose]);
+  }, [active, dialogRef]);
 }
 
 
