@@ -1,10 +1,68 @@
 import { useEffect, useMemo, useState } from 'react';
 
 const products = [
-  { id: 'bodylotion', category: 'BODY CARE', name: 'PareCure Body Lotion', detail: 'Daily body moisturising care · 250 ml', description: 'A daily body-care essential designed to be part of a simple, considered moisturising routine. The 250 ml bottle is made for everyday use as you take a little time to care for your skin.', price: 129.99, image: '/assets/logo/body-lotion-250ml.png', applicationImage: '/assets/logo/body-lotion-250ml-application.PNG', skinImage: '/assets/logo/body-lotion-250ml-closeup.PNG', tone: 'blush', alt: 'PareCure body lotion bottle' },
-  { id: 'oil', category: 'BODY CARE', name: 'Dark Inner Thigh & Underarms Remover Tissue Oil', detail: 'Targeted body care · 50 ml', description: 'A targeted body-care oil presented for the inner-thigh and underarm areas. Its compact 50 ml size makes it easy to keep as part of your personal body-care routine. Follow the product packaging for directions and precautions.', price: 99.99, image: '/assets/logo/tissue-oil-50ml.jpg.png', applicationImage: '/assets/logo/tissue-oil-50ml-Application.PNG', skinImage: '/assets/logo/tissue-oil-50ml-closeup.PNG', tone: 'olive', alt: 'PareCure tissue oil' },
-  { id: 'facewash', category: 'FACE CARE', name: 'PareCure Face Wash', detail: 'Daily facial cleansing · 100 ml', description: 'A face-wash essential for the cleansing step of your everyday skincare routine. The 100 ml size is a practical addition to a simple face-care ritual. Refer to the product packaging for ingredients, directions and suitability information.', price: 79.99, image: '/assets/logo/face-wash-100ml.png', applicationImage: '/assets/logo/face-wash-100ml-application.PNG', skinImage: '/assets/logo/face-wash-100ml-closeup.PNG', tone: 'blush', alt: 'PareCure face wash' },
-  { id: 'brightening-serum', category: 'FACE CARE', name: 'PareCure Brightening Serum', detail: 'Brightening skincare · 50 ml', description: 'A brightening-focused serum to add to your face-care routine. The 50 ml bottle is intended for the serum step in a considered daily skincare ritual. Check the product packaging for the complete ingredient list, directions and precautions.', price: 179.99, image: '/assets/logo/brightening-serum-50ml.png', applicationImage: '/assets/logo/brightening-serum-50ml-application.PNG', skinImage: '/assets/logo/brightening-serum-50ml-closeup.PNG', tone: 'sand', alt: 'PareCure brightening serum' },
+  {
+    id: 'bodylotion', category: 'BODY CARE', name: 'PareCure BEAUTY Body Lotion',
+    detail: 'Nourish · Hydrate · Rejuvenate · 250 ml',
+    tagline: 'NOURISH • HYDRATE • REJUVENATE — FOR SOFT, SMOOTH & HEALTHY SKIN',
+    subTagline: 'SILKY SMOOTH SKIN EVERYDAY',
+    description: 'A rich, non-greasy formula that deeply moisturizes and nourishes skin. Enriched with Shea Butter, Aloe Vera, Green Tea, and Vitamin E to help soothe dryness, restore softness, and keep skin healthy, smooth, and radiant all day long.',
+    highlights: ['Shea Butter — Deeply moisturizes', 'Aloe Vera — Soothes & calms', 'Green Tea — Antioxidant protection', 'Vitamin E — Nourishes & repairs', 'Deep moisturization', 'Soothes dry skin', 'Improves skin texture', 'Healthy, radiant skin'],
+    suitability: 'Suitable for all skin types', size: '250 ml e',
+    ingredients: 'Aqua, Glycerin, Caprylic/Capric Triglyceride, Cetearyl Alcohol, Shea Butter (Butyrospermum Parkii), Aloe Barbadensis Leaf Extract, Camellia Sinensis (Green Tea) Extract, Tocopheryl Acetate (Vitamin E), Dimethicone, Glyceryl Stearate, Carbomer, Phenoxyethanol, Ethylhexylglycerin, Fragrance, Triethanolamine.',
+    directions: 'Apply generously to clean, dry skin. Massage gently until fully absorbed. Use daily, preferably after bathing, for soft, smooth, and nourished skin.',
+    warnings: 'FOR EXTERNAL USE ONLY. AVOID CONTACT WITH EYES. IF CONTACT OCCURS, RINSE IMMEDIATELY WITH WATER.',
+    claims: ['Paraben Free', 'Sulfate Free', 'Cruelty Free'],
+    manufacturer: 'Manufactured for: PareCure Beauty — A STEP TOWARDS NATURAL BEAUTY | www.parecurebeauty.com',
+    barcode: '8 906123 456819',
+    price: 129.99, image: '/assets/logo/body-lotion-250ml.png', applicationImage: '/assets/logo/body-lotion-250ml-application.PNG', skinImage: '/assets/logo/body-lotion-250ml-closeup.PNG', tone: 'blush', alt: 'PareCure BEAUTY Body Lotion, 250 ml'
+  },
+  {
+    id: 'oil', category: 'BODY CARE', name: 'PareCure BEAUTY Tissue Oil',
+    detail: 'Nourish · Repair · Renew · 50 ml',
+    tagline: 'NOURISH • REPAIR • RENEW — FOR SMOOTHER, FIRMER & HEALTHY SKIN',
+    description: 'A lightweight, fast-absorbing formula enriched with natural oils and Vitamin E that deeply nourishes, helps improve skin elasticity, and reduces the appearance of stretch marks, scars, and uneven skin tone for soft, smooth, and radiant skin.',
+    highlights: ['Natural oils — Deeply nourishes', 'Vitamin E — Helps repair', 'Improves skin elasticity', 'Helps reduce the appearance of stretch marks & scars', 'Nourishes deeply', 'Leaves skin radiant'],
+    suitability: 'Suitable for all skin types', size: '50 ml e',
+    ingredients: 'Helianthus Annuus (Sunflower) Seed Oil, Prunus Amygdalus Dulcis (Sweet Almond) Oil, Simmondsia Chinensis (Jojoba) Seed Oil, Rosa Canina (Rosehip) Fruit Oil, Tocopheryl Acetate (Vitamin E), Caprylic/Capric Triglyceride, Fragrance.',
+    directions: 'Apply a few drops to clean, dry skin. Gently massage in circular motions until fully absorbed. Use twice daily for best results.',
+    warnings: 'FOR EXTERNAL USE ONLY. AVOID CONTACT WITH EYES. IF CONTACT OCCURS, RINSE IMMEDIATELY WITH WATER.',
+    claims: ['Paraben Free', 'Sulfate Free', 'Cruelty Free'],
+    manufacturer: 'Manufactured for: PareCure Beauty — A STEP TOWARDS NATURAL BEAUTY | www.parecurebeauty.com',
+    barcode: '8 906123 456833',
+    price: 99.99, image: '/assets/logo/tissue-oil-50ml.jpg.png', applicationImage: '/assets/logo/tissue-oil-50ml-Application.PNG', skinImage: '/assets/logo/tissue-oil-50ml-closeup.PNG', tone: 'olive', alt: 'PareCure BEAUTY Tissue Oil, 50 ml'
+  },
+  {
+    id: 'facewash', category: 'FACE CARE', name: 'PareCure BEAUTY Face Wash',
+    detail: 'Cleanse · Refresh · Reveal · 100 ml',
+    tagline: 'CLEANSE • REFRESH • REVEAL — FOR HEALTHY, RADIANT SKIN',
+    description: 'Gently cleanses away dirt, excess oil, and impurities while nourishing skin with Aloe Vera, Green Tea, and Vitamin E to keep skin fresh, clean, revitalized, soft, smooth, and naturally radiant every day.',
+    highlights: ['Aloe Vera — Soothes & hydrates', 'Green Tea — Purifies & protects', 'Vitamin E — Nourishes & revitalizes', 'Deep cleanses', 'Removes impurities', 'Maintains moisture balance', 'Reveals a healthy glow'],
+    suitability: 'Suitable for all skin types', size: '100 ml e',
+    ingredients: 'Aqua, Aloe Barbadensis Leaf Extract, Camellia Sinensis (Green Tea) Extract, Glycerin, Vitamin E (Tocopheryl Acetate), Cocamidopropyl Betaine, Sodium Lauryl Sulfate, PEG-7 Glyceryl Cocoate, Carbomer, Phenoxyethanol, Fragrance, Disodium EDTA, Citric Acid, Sodium Hydroxide.',
+    directions: 'Take a small amount, apply to wet face, gently massage in circular motions, and rinse thoroughly. Use twice daily for best results.',
+    warnings: 'FOR EXTERNAL USE ONLY. AVOID CONTACT WITH EYES. IF CONTACT OCCURS, RINSE IMMEDIATELY WITH WATER.',
+    claims: ['Paraben Free', 'Sulfate Free', 'Cruelty Free'],
+    manufacturer: 'Manufactured for: PareCure Beauty — A STEP TOWARDS NATURAL BEAUTY | www.parecurebeauty.com',
+    barcode: '8 906123 456789',
+    price: 79.99, image: '/assets/logo/face-wash-100ml.png', applicationImage: '/assets/logo/face-wash-100ml-application.PNG', skinImage: '/assets/logo/face-wash-100ml-closeup.PNG', tone: 'blush', alt: 'PareCure BEAUTY Face Wash, 100 ml'
+  },
+  {
+    id: 'brightening-serum', category: 'FACE CARE', name: 'PareCure BEAUTY Brightening Serum',
+    detail: 'Radiant · Even tone · Healthy glow · 50 ml',
+    tagline: 'RADIANT • EVEN TONE • HEALTHY GLOW — FOR BRIGHTER, YOUNGER LOOKING SKIN',
+    subTagline: 'SKIN THAT GLOWS NATURALLY',
+    description: 'A powerful yet gentle formula enriched with Vitamin C, Niacinamide, Hyaluronic Acid, and Green Tea Extract that helps reduce dark spots, evens skin tone, hydrates deeply, and reveals a brighter, healthier, and more radiant complexion.',
+    highlights: ['Vitamin C — Brightens & evens tone', 'Niacinamide — Helps reduce dark spots', 'Hyaluronic Acid — Hydrates & plumps', 'Green Tea Extract — Soothes & protects', 'Brightens skin tone', 'Helps reduce dark spots', 'Deeply hydrates', 'Soothes & protects'],
+    suitability: 'Suitable for all skin types', size: '50 ml e',
+    ingredients: 'Aqua, Propanediol, Ascorbic Acid (Vitamin C), Niacinamide, Sodium Hyaluronate (Hyaluronic Acid), Camellia Sinensis (Green Tea) Extract, Glycerin, Panthenol, Aloe Barbadensis Leaf Extract, Phenoxyethanol, Ethylhexylglycerin, Carbomer, Triethanolamine, Fragrance.',
+    directions: 'Apply 2–3 drops to clean, dry face and neck. Gently massage until fully absorbed. Use twice daily (morning and evening) for best results.',
+    warnings: 'FOR EXTERNAL USE ONLY. AVOID CONTACT WITH EYES. IF CONTACT OCCURS, RINSE IMMEDIATELY WITH WATER.',
+    claims: ['Paraben Free', 'Sulfate Free', 'Cruelty Free'],
+    manufacturer: 'Manufactured for: PareCure Beauty — A STEP TOWARDS NATURAL BEAUTY | www.parecurebeauty.com',
+    barcode: '8 906123 456789',
+    price: 179.99, image: '/assets/logo/brightening-serum-50ml.png', applicationImage: '/assets/logo/brightening-serum-50ml-application.PNG', skinImage: '/assets/logo/brightening-serum-50ml-closeup.PNG', tone: 'sand', alt: 'PareCure BEAUTY Brightening Serum, 50 ml'
+  },
 ];
 const photo = (id, width = 900) => id.startsWith('/') ? id : 'https://images.unsplash.com/' + id + '?auto=format&fit=crop&w=' + width + '&q=85';
 const money = (value) => 'R ' + value.toFixed(2);
@@ -40,7 +98,7 @@ function ProductDetailDialog({ product, onClose, onAdd }) {
     { src: product.skinImage || 'photo-1616394584738-fc6e612e71b9', alt: 'Close-up of healthy-looking skin texture', label: 'Skin close-up', type: 'skin' },
   ];
   const [activeImage, setActiveImage] = useState(0);
-  const ingredients = product.ingredients || 'The verified full ingredient list is not available in the current product assets. Please check the product packaging before use.';
+  const ingredients = product.ingredients || 'Please check the product packaging for the full ingredient list.';
   const directions = product.directions || 'Follow the directions printed on the product packaging.';
 
   return <div className="product-detail-overlay" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
@@ -65,18 +123,20 @@ function ProductDetailDialog({ product, onClose, onAdd }) {
           <h2 id="product-detail-title">{product.name}</h2>
           <p className="product-detail-size">{product.detail}</p>
           <strong className="product-detail-price">{money(product.price)}</strong>
-          <div className="product-detail-description"><h3>About this product</h3><p>{product.description}</p></div>
+          <div className="product-detail-description"><h3>About this product</h3>{product.tagline && <p className="product-detail-tagline">{product.tagline}</p>}{product.subTagline && <p className="product-detail-tagline">{product.subTagline}</p>}<p>{product.description}</p></div>
           <div className="product-detail-facts"><h3>Product details</h3><dl>
             <div><dt>Product</dt><dd>{product.name}</dd></div>
             <div><dt>Category</dt><dd>{product.category === 'FACE CARE' ? 'Face care' : 'Body care'}</dd></div>
-            <div><dt>Size</dt><dd>{product.detail.split('·').pop().trim()}</dd></div>
-            <div><dt>Product type</dt><dd>{product.detail.split('·')[0].trim()}</dd></div>
+            <div><dt>Size</dt><dd>{product.size || product.detail.split('·').pop().trim()}</dd></div>
+            <div><dt>Skin suitability</dt><dd>{product.suitability || 'See product packaging'}</dd></div>
             <div><dt>Price</dt><dd>{money(product.price)}</dd></div>
           </dl></div>
+          {product.highlights?.length > 0 && <div className="product-detail-highlights"><h3>Key benefits</h3><ul>{product.highlights.map((item) => <li key={item}>{item}</li>)}</ul></div>}
           <div className="product-detail-information">
             <section><h3>Ingredients</h3><p>{ingredients}</p></section>
             <section><h3>How to use</h3><p>{directions}</p></section>
-            <section><h3>Important information</h3><p>Check the product packaging for warnings, precautions and skin-suitability information. If irritation occurs, discontinue use.</p></section>
+            <section><h3>Warnings & precautions</h3><p>{product.warnings || 'Check the product packaging before use.'}</p>{product.claims?.length > 0 && <p className="product-detail-claims">{product.claims.join(' · ')}</p>}</section>
+            <section><h3>Manufacturer</h3><p>{product.manufacturer || 'PareCure Beauty'}</p><p>Barcode: {product.barcode || 'Not provided'}</p></section>
           </div>
           <div className="product-detail-actions"><div className="detail-quantity" aria-label="Quantity"><button onClick={() => setQuantity((value) => Math.max(1, value - 1))} aria-label="Decrease quantity">−</button><span>{quantity}</span><button onClick={() => setQuantity((value) => value + 1)} aria-label="Increase quantity">+</button></div><button className="button button-dark detail-add-button" onClick={() => onAdd({ ...product, quantity })}>Add {quantity} to bag · {money(product.price * quantity)} <span>↗</span></button></div>
         </div>
