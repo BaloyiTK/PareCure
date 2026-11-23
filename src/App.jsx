@@ -1,17 +1,17 @@
 import { useMemo, useState } from 'react';
 
 const products = [
-  { id: 'bodylotion', category: 'BODY CARE', name: 'PareCure Body Lotion', detail: 'Daily body moisturising care · 250 ml', price: 129.99, image: '/assets/logo/body-lotion-250ml.png', tone: 'blush', alt: 'PareCure body lotion bottle' },
-  { id: 'oil', category: 'BODY CARE', name: 'Dark Inner Thigh & Underarms Remover Tissue Oil', detail: 'Targeted body care · 50 ml', price: 99.99, image: '/assets/logo/tissue-oil-50ml.jpg.png', tone: 'olive', alt: 'PareCure tissue oil' },
-  { id: 'facewash', category: 'FACE CARE', name: 'PareCure Face Wash', detail: 'Daily facial cleansing · 100 ml', price: 79.99, image: '/assets/logo/face-wash-100ml.png', tone: 'blush', alt: 'PareCure face wash' },
-  { id: 'brightening-serum', category: 'FACE CARE', name: 'PareCure Brightening Serum', detail: 'Brightening skincare · 50 ml', price: 179.99, image: '/assets/logo/brightening-serum-50ml.png', tone: 'sand', alt: 'PareCure brightening serum' },
+  { id: 'bodylotion', category: 'BODY CARE', name: 'PareCure Body Lotion', detail: 'Daily body moisturising care · 250 ml', description: 'A daily body-care essential designed to be part of a simple, considered moisturising routine. The 250 ml bottle is made for everyday use as you take a little time to care for your skin.', price: 129.99, image: '/assets/logo/body-lotion-250ml.png', tone: 'blush', alt: 'PareCure body lotion bottle' },
+  { id: 'oil', category: 'BODY CARE', name: 'Dark Inner Thigh & Underarms Remover Tissue Oil', detail: 'Targeted body care · 50 ml', description: 'A targeted body-care oil presented for the inner-thigh and underarm areas. Its compact 50 ml size makes it easy to keep as part of your personal body-care routine. Follow the product packaging for directions and precautions.', price: 99.99, image: '/assets/logo/tissue-oil-50ml.jpg.png', tone: 'olive', alt: 'PareCure tissue oil' },
+  { id: 'facewash', category: 'FACE CARE', name: 'PareCure Face Wash', detail: 'Daily facial cleansing · 100 ml', description: 'A face-wash essential for the cleansing step of your everyday skincare routine. The 100 ml size is a practical addition to a simple face-care ritual. Refer to the product packaging for ingredients, directions and suitability information.', price: 79.99, image: '/assets/logo/face-wash-100ml.png', tone: 'blush', alt: 'PareCure face wash' },
+  { id: 'brightening-serum', category: 'FACE CARE', name: 'PareCure Brightening Serum', detail: 'Brightening skincare · 50 ml', description: 'A brightening-focused serum to add to your face-care routine. The 50 ml bottle is intended for the serum step in a considered daily skincare ritual. Check the product packaging for the complete ingredient list, directions and precautions.', price: 179.99, image: '/assets/logo/brightening-serum-50ml.png', tone: 'sand', alt: 'PareCure brightening serum' },
 ];
 const photo = (id, width = 900) => id.startsWith('/') ? id : 'https://images.unsplash.com/' + id + '?auto=format&fit=crop&w=' + width + '&q=85';
 const money = (value) => 'R ' + value.toFixed(2);
 
-function ProductCard({ product, onAdd }) {
+function ProductCard({ product, onAdd, onOpen }) {
   return <article className="product-card">
-    <div className={'product-image ' + product.tone}>
+    <div className={'product-image ' + product.tone + ' product-image-clickable'} onClick={() => onOpen(product)} role="button" tabIndex={0} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); onOpen(product); } }} aria-label={'View details for ' + product.name}>
       <span className="product-tag">{product.category}</span>
       <span className="product-card-badge">PARECURE ESSENTIAL</span>
       <img src={photo(product.image)} alt={product.alt} loading="lazy" />
@@ -19,11 +19,40 @@ function ProductCard({ product, onAdd }) {
       <span className="product-image-hint">VIEW PRODUCT</span>
     </div>
     <div className="product-info">
-      <div className="product-copy"><h3>{product.name}</h3><p>{product.detail}</p><span className="product-rating"><small>EVERYDAY SKINCARE ESSENTIAL</small></span></div>
+      <div className="product-copy"><h3><button type="button" className="product-title-button" onClick={() => onOpen(product)}>{product.name}</button></h3><p>{product.detail}</p><span className="product-rating"><small>EVERYDAY SKINCARE ESSENTIAL</small></span></div>
       <span className="product-price">{money(product.price)}</span>
     </div>
     <button className="product-add-button" onClick={() => onAdd(product)}>Add to bag <span>↗</span></button>
   </article>;
+}
+
+
+function ProductDetailDialog({ product, onClose, onAdd }) {
+  const [quantity, setQuantity] = useState(1);
+  return <div className="product-detail-overlay" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
+    <section className="product-detail-dialog" role="dialog" aria-modal="true" aria-labelledby="product-detail-title">
+      <button className="dialog-close" onClick={onClose} aria-label="Close product details">×</button>
+      <div className="product-detail-layout">
+        <div className={'product-detail-photo ' + product.tone}><img src={photo(product.image, 1000)} alt={product.alt} /></div>
+        <div className="product-detail-content">
+          <p className="eyebrow">{product.category} · PARECURE</p>
+          <h2 id="product-detail-title">{product.name}</h2>
+          <p className="product-detail-size">{product.detail}</p>
+          <strong className="product-detail-price">{money(product.price)}</strong>
+          <div className="product-detail-description"><h3>About this product</h3><p>{product.description}</p></div>
+          <div className="product-detail-facts"><h3>Product details</h3><dl>
+            <div><dt>Product</dt><dd>{product.name}</dd></div>
+            <div><dt>Category</dt><dd>{product.category === 'FACE CARE' ? 'Face care' : 'Body care'}</dd></div>
+            <div><dt>Size</dt><dd>{product.detail.split('·').pop().trim()}</dd></div>
+            <div><dt>Product type</dt><dd>{product.detail.split('·')[0].trim()}</dd></div>
+            <div><dt>Price</dt><dd>{money(product.price)}</dd></div>
+          </dl></div>
+          <p className="product-detail-note">For ingredients, directions, warnings and skin-suitability information, please refer to the product packaging. These details have not been supplied in the store listing yet.</p>
+          <div className="product-detail-actions"><div className="detail-quantity" aria-label="Quantity"><button onClick={() => setQuantity((value) => Math.max(1, value - 1))} aria-label="Decrease quantity">−</button><span>{quantity}</span><button onClick={() => setQuantity((value) => value + 1)} aria-label="Increase quantity">+</button></div><button className="button button-dark detail-add-button" onClick={() => onAdd({ ...product, quantity })}>Add {quantity} to bag · {money(product.price * quantity)} <span>↗</span></button></div>
+        </div>
+      </div>
+    </section>
+  </div>;
 }
 
 function AccountDialog({ onClose }) {
@@ -144,6 +173,7 @@ function CheckoutDialog({ bag, subtotal, onClose, onOrderComplete }) {
 
 export default function App() {
   const [bag, setBag] = useState([]);
+  const [selectedProduct, setSelectedProduct] = useState(null);
   const [bagOpen, setBagOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
@@ -189,7 +219,7 @@ export default function App() {
       <section className="ticker" aria-label="Brand values"><span>SKINCARE WITH INTENTION</span><b>✳</b><span>YOUR DAILY RITUAL</span><b>✳</b><span>CONFIDENCE IN EVERY DROP</span><b>✳</b><span>SKINCARE WITH INTENTION</span></section>
       <section className="collection section" id="shop">
         <div className="catalogue-tools"><label className="search-field"><span>⌕</span><input type="search" placeholder="Search products" aria-label="Search products" value={search} onChange={(event) => setSearch(event.target.value)} /></label><label className="filter-field"><span>Category</span><select value={category} onChange={(event) => setCategory(event.target.value)}><option value="ALL">All products</option><option value="FACE CARE">Face care</option><option value="BODY CARE">Body care</option></select></label><label className="filter-field"><span>Sort by</span><select value={sort} onChange={(event) => setSort(event.target.value)}><option value="featured">Featured</option><option value="low">Price: low to high</option><option value="high">Price: high to low</option></select></label></div>
-        <div className="product-grid">{visibleProducts.map((product) => <ProductCard key={product.id} product={product} onAdd={addToBag} />)}</div>
+        <div className="product-grid">{visibleProducts.map((product) => <ProductCard key={product.id} product={product} onAdd={addToBag} onOpen={setSelectedProduct} />)}</div>
         {!visibleProducts.length && <p className="no-products">No products match that search. Try another name or category.</p>}
       </section>
       <section className="story section" id="story"><div className="story-image"><img src={photo('photo-1611930022073-b7a4ba5fcccd', 1200)} alt="Skincare products arranged in warm natural light" loading="lazy" /></div><div className="story-copy"><p className="eyebrow">A MORE MINDFUL ROUTINE</p><h2>Less noise.<br /><em>More care.</em></h2><p>We believe skincare should feel personal, uncomplicated and considered. PareCure is about showing up for yourself, one small ritual at a time.</p><a className="text-link" href="#ritual">Get to know us <span>↗</span></a></div></section>
@@ -197,6 +227,7 @@ export default function App() {
       <section className="newsletter section"><div><p className="eyebrow">NOTES FROM PARECURE</p><h2>A little beauty<br /><em>in your inbox.</em></h2></div><form onSubmit={(event) => { event.preventDefault(); setSubscribed(true); }}><label htmlFor="email">Skincare notes, new launches and thoughtful offers.</label><div className="email-row"><input id="email" type="email" placeholder="Your email address" value={email} onChange={(event) => setEmail(event.target.value)} required /><button type="submit" aria-label="Subscribe">↗</button></div><small>{subscribed ? 'Thank you. Newsletter delivery will be enabled when email services are connected.' : 'By subscribing, you agree to receive updates from PareCure.'}</small></form></section>
     </main>
     <footer className="footer"><a className="wordmark footer-mark" href="#top" aria-label="PareCure home"><img className="brand-logo" src="/assets/logo/parecure-logo.png" alt="PareCure Beauty" /></a><p>Care for the skin you're in.</p><div className="footer-links"><a href="#shop">Shop</a><button onClick={() => setAccountOpen(true)}>My account</button><a href="mailto:hello@parecure.com">Contact</a><a href="#footer-policies">Delivery & returns</a><a href="#footer-policies">Privacy & terms</a></div><div className="footer-bottom" id="footer-policies"><span>© {new Date().getFullYear()} PareCure Beauty</span><span>Made with intention.</span><a href="mailto:hello@parecure.com">Get in touch ↗</a></div></footer>
+    {selectedProduct && <ProductDetailDialog product={selectedProduct} onClose={() => setSelectedProduct(null)} onAdd={(product) => { setSelectedProduct(null); setBag((current) => { const existing = current.find((item) => item.id === product.id); return existing ? current.map((item) => item.id === product.id ? { ...item, quantity: item.quantity + product.quantity } : item) : [...current, { ...product }]; }); setBagOpen(true); }} />}
     {bagOpen && <div className="bag-overlay" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setBagOpen(false); }}><button className="overlay-close" onClick={() => setBagOpen(false)} aria-label="Close shopping bag">×</button><aside className="bag-panel" role="dialog" aria-modal="true" aria-label="Shopping bag"><div className="bag-heading"><p className="eyebrow">YOUR SELECTION</p><h2>Your bag <span>({itemCount})</span></h2></div><div className="bag-items">{bag.length ? bag.map((item) => <div className="bag-item" key={item.id}><img src={photo(item.image, 180)} alt="" /><div className="bag-item-copy"><strong>{item.name}</strong><small>{item.detail}</small><b>{money(item.price)}</b><div className="quantity-control"><button onClick={() => updateQuantity(item.id, -1)} aria-label={'Decrease ' + item.name + ' quantity'}>−</button><span>{item.quantity}</span><button onClick={() => updateQuantity(item.id, 1)} aria-label={'Increase ' + item.name + ' quantity'}>+</button><button className="remove-item" onClick={() => setBag((current) => current.filter((entry) => entry.id !== item.id))}>Remove</button></div></div></div>) : <p className="empty-bag">Your bag is taking a little breather.<br />Explore the collection to find your essentials.</p>}</div><div className="bag-summary"><div><span>Subtotal</span><strong>{money(subtotal)}</strong></div><small>Delivery and any applicable charges are calculated at checkout.</small><button className="button button-dark checkout-button" disabled={!bag.length} onClick={() => { setBagOpen(false); setCheckoutOpen(true); }}>Continue to checkout <span>↗</span></button><p>Demo checkout only. No real payment is processed.</p></div></aside></div>}
     {checkoutOpen && <CheckoutDialog bag={bag} subtotal={subtotal} onClose={() => setCheckoutOpen(false)} onOrderComplete={() => { setBag([]); setCheckoutOpen(false); }} />}
     {accountOpen && <AccountDialog onClose={() => setAccountOpen(false)} />}
