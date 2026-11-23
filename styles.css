@@ -34,3 +34,19 @@
 .product-add-button:hover{background:var(--red);border-color:var(--red)}
 @media(max-width:800px){.product-grid{gap:18px}.product-card{padding:8px 8px 12px}.product-info{display:flex;min-height:112px;padding:14px 3px 10px}.product-info h3{font-size:16px}.product-image{aspect-ratio:1/1.08}}
 @media(max-width:480px){.product-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.product-card{padding:6px 6px 10px}.product-image{aspect-ratio:1/1.12}.product-image img{padding:12px}.product-card-badge{font-size:6px;right:7px;top:10px}.product-tag{top:9px;left:8px;font-size:6px;padding:6px 7px}.product-info{display:block;min-height:112px;padding:11px 3px 9px}.product-info h3{font-size:14px;line-height:1.25}.product-info p{font-size:9px}.product-price{display:block;margin-top:8px;font-size:11px}.product-rating{font-size:8px;gap:4px;margin-top:7px}.product-rating small{font-size:7px}.product-add-button{padding:11px 9px;font-size:8px}.product-quick-add{width:32px;height:32px;right:8px;bottom:8px;font-size:20px}}
+
+
+/* Larger product photography: make the actual packaging the focus */
+.product-image{aspect-ratio:1/1.02;min-height:0}
+.product-image img{padding:2px;transform:scale(1.16);transform-origin:center;object-fit:contain}
+.product-card:hover .product-image img{transform:scale(1.22)}
+@media(max-width:800px){
+  .product-image{aspect-ratio:1/1.02}
+  .product-image img{padding:0;transform:scale(1.18)}
+  .product-card:hover .product-image img{transform:scale(1.24)}
+}
+@media(max-width:480px){
+  .product-image{aspect-ratio:1/1;max-height:none}
+  .product-image img{padding:0;transform:scale(1.18)}
+  .product-card:hover .product-image img{transform:scale(1.24)}
+}
