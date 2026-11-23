@@ -125,3 +125,8 @@
   .filter-field span{font-size:8px}
   .filter-field select{font-size:9px}
 }
+
+
+/* Reduce the whitespace above the shop filters */
+.collection.section{padding-top:64px}
+@media(max-width:800px){.collection.section{padding-top:48px}}
