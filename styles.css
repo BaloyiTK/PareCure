@@ -50,3 +50,23 @@
   .product-image img{padding:0;transform:scale(1.18)}
   .product-card:hover .product-image img{transform:scale(1.24)}
 }
+
+
+/* Mobile hero uses the supplied campaign photo as its background */
+@media(max-width:800px){
+  .hero{
+    min-height:620px;
+    display:flex;
+    align-items:center;
+    background-image:linear-gradient(90deg,rgba(255,255,255,.94) 0%,rgba(255,255,255,.82) 43%,rgba(255,255,255,.22) 100%),url('/assets/logo/HeroImage.png');
+    background-size:cover;
+    background-position:64% center;
+    background-repeat:no-repeat;
+  }
+  .hero-copy{position:relative;z-index:1;width:min(72%,440px);padding:0}
+  .hero-visual{display:none}
+}
+@media(max-width:480px){
+  .hero{min-height:590px;padding:54px 7%;background-position:66% center}
+  .hero-copy{width:82%}
+}
