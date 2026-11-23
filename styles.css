@@ -283,3 +283,30 @@
   .product-add-button{padding:15px;font-size:10px;letter-spacing:.1em}
   .product-quick-add{width:40px;height:40px;right:13px;bottom:13px;font-size:23px}
 }
+
+
+/* Product detail gallery and readable product information */
+.product-detail-gallery{min-width:0;padding:28px;background:#f5f0eb;display:flex;flex-direction:column;gap:12px}
+.product-detail-photo{position:relative;min-height:440px;height:440px;padding:24px;overflow:hidden}
+.product-detail-photo img{width:100%;height:100%;max-height:none;object-fit:contain}
+.product-gallery-label{position:absolute;left:14px;bottom:12px;padding:7px 10px;background:rgba(255,255,255,.9);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#514b43}
+.product-gallery-thumbnails{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.product-gallery-thumbnails button{min-width:0;border:1px solid #e4ddd3;background:#fff;padding:6px;display:flex;flex-direction:column;gap:6px;cursor:pointer;color:#71695f}
+.product-gallery-thumbnails button.active{border:2px solid var(--red);padding:5px;color:var(--red)}
+.product-gallery-thumbnails img{width:100%;height:76px;object-fit:cover;background:#f5f0eb}
+.product-gallery-thumbnails button:first-child img{object-fit:contain}
+.product-gallery-thumbnails span{font-size:8px;line-height:1.3;text-align:center}
+.product-gallery-disclaimer{font-size:9px;line-height:1.5;color:#81786d;margin:0}
+.product-detail-information{display:grid;gap:16px;margin-top:25px}
+.product-detail-information section{border-top:1px solid var(--line);padding-top:13px}
+.product-detail-information h3{font:21px var(--serif);margin:0 0 7px}
+.product-detail-information p{font-size:11px;line-height:1.7;color:#6f685f;margin:0}
+@media(max-width:700px){
+ .product-detail-gallery{padding:16px;gap:9px}
+ .product-detail-photo{height:38vh;min-height:280px;max-height:360px;padding:20px}
+ .product-gallery-thumbnails img{height:70px}
+ .product-gallery-thumbnails span{font-size:8px}
+ .product-detail-information{gap:13px;margin-top:22px}
+ .product-detail-information h3{font-size:20px}
+ .product-detail-information p{font-size:12px}
+}
